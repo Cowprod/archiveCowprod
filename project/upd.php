@@ -161,7 +161,7 @@ require_once __DIR__ . '/../top.php';
     <div class="card mb-4">
         <div class="card-header">Tags</div>
         <div class="card-body">
-            <div class="input-group">
+            <div class="d-flex align-items-stretch tag-select-group">
                 <select id="TAG_N_ID" class="form-select" multiple>
                     <?php foreach ($aTagsByCategory as $aCategory): ?>
                         <optgroup label="<?php echo htmlspecialchars($aCategory['label'], ENT_QUOTES, 'UTF-8'); ?>">
@@ -179,7 +179,7 @@ require_once __DIR__ . '/../top.php';
                 </select>
                 <button
                     type="button"
-                    class="btn btn-light border"
+                    class="btn btn-outline-light tag-admin-button"
                     id="bAdminTags"
                     title="Administrer les tags"
                 >
