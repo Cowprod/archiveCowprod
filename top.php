@@ -13,11 +13,30 @@ require_once __DIR__ . '/secure.php';
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <style>
         .select2-container { flex: 1 1 auto; width: 1% !important; }
+
+        .tag-select-group .select2-container {
+            display: flex;
+            align-items: stretch;
+        }
         .select2-container .select2-selection--multiple {
-            min-height: 38px;
+            min-height: 42px;
             border: 1px solid var(--bs-light) !important;
             box-shadow: none !important;
             background: transparent;
+        }
+
+        .tag-select-group .select2-selection--multiple {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tag-admin-button {
+            align-self: stretch;
+            padding-top: 0;
+            padding-bottom: 0;
+            min-width: 64px;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
             border: 0;
