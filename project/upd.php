@@ -277,9 +277,10 @@ require_once __DIR__ . '/../top.php';
 
             <?php if (count($aProjectUrls) > 0): ?>
                 <table class="table table-bordered table-striped table-sm align-middle mb-0">
-                    <tbody>
+                    <tbody id="tUrlBody">
                         <?php foreach ($aProjectUrls as $aProjectUrl): ?>
                             <tr data-url-id="<?php echo (int) $aProjectUrl['PRU_N_ID']; ?>">
+                                <td class="text-center js-drag-url" style="width:38px;cursor:move;" title="Déplacer"><i class="fa fa-grip-vertical text-body-secondary"></i></td>
                                 <td class="text-center" style="width:50px;">
                                     <button type="button" class="btn btn-danger btn-sm js-delete-url" title="Supprimer">
                                         <i class="fa fa-trash"></i>
@@ -384,10 +385,11 @@ require_once __DIR__ . '/../top.php';
             <?php if (count($aProjectFiles) > 0): ?>
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-sm align-middle mb-0">
-                        <tbody>
+                        <tbody id="tFileBody">
                         <?php foreach ($aProjectFiles as $aProjectFile): ?>
                             <?php $bImage = str_starts_with((string) $aProjectFile['PRF_CH_MIMETYPE'], 'image/'); ?>
                             <tr data-file-id="<?php echo (int) $aProjectFile['PRF_N_ID']; ?>">
+                                <td class="text-center js-drag-file" style="width:38px;cursor:move;" title="Déplacer"><i class="fa fa-grip-vertical text-body-secondary"></i></td>
                                 <td class="text-center" style="width:50px"><button type="button" class="btn btn-danger btn-sm js-delete-file"><i class="fa fa-trash"></i></button></td>
                                 <td class="text-center" style="width:110px">
                                     <?php if ($bImage): ?>
@@ -451,6 +453,7 @@ require_once __DIR__ . '/../top.php';
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="/assets/js/jquery.typing-0.2.0.js"></script>
+<script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
 <script>
 $(function () {
     let nPendingSave = 0;
@@ -616,6 +619,58 @@ $(function () {
     document.getElementById('mAdminTags').addEventListener('hidden.bs.modal', function () {
         window.location.reload();
     });
+
+    function saveResourceOrder(sType) {
+        const bUrl = sType === 'url';
+        const $body = bUrl ? $('#tUrlBody') : $('#tFileBody');
+        const sDataName = bUrl ? 'url-id' : 'file-id';
+        const sParam = bUrl ? 'PRU_N_ID[]' : 'PRF_N_ID[]';
+        const sUrl = bUrl ? '/project/api/trOrderUrl.php' : '/project/api/trOrderFile.php';
+        const aData = [{name:'PRO_N_ID', value:$('#PRO_N_ID').val()}];
+
+        $body.children('tr').each(function () {
+            aData.push({name:sParam, value:$(this).data(sDataName)});
+        });
+
+        setSaveStatus('Enregistrement de l’ordre…', false);
+
+        $.ajax({url:sUrl,type:'POST',dataType:'json',data:aData})
+        .done(function(data){
+            if(data.success===true){setSaveStatus('Enregistré',false);return;}
+            setSaveStatus(data.message||'Erreur lors du classement',true);
+        })
+        .fail(function(xhr){
+            setSaveStatus(xhr.responseJSON&&xhr.responseJSON.message?xhr.responseJSON.message:'Erreur lors du classement',true);
+        });
+    }
+
+    if ($('#tUrlBody').length) {
+        $('#tUrlBody').sortable({
+            axis:'y',
+            handle:'.js-drag-url',
+            helper:function(e,tr){
+                const $originals=tr.children();
+                const $helper=tr.clone();
+                $helper.children().each(function(index){$(this).width($originals.eq(index).width());});
+                return $helper;
+            },
+            update:function(){saveResourceOrder('url');}
+        });
+    }
+
+    if ($('#tFileBody').length) {
+        $('#tFileBody').sortable({
+            axis:'y',
+            handle:'.js-drag-file',
+            helper:function(e,tr){
+                const $originals=tr.children();
+                const $helper=tr.clone();
+                $helper.children().each(function(index){$(this).width($originals.eq(index).width());});
+                return $helper;
+            },
+            update:function(){saveResourceOrder('file');}
+        });
+    }
 
     $('#bAdminUrlTypes').on('click', function () {
         $('#fAdminUrlTypes').attr('src', '/urlType/index.php');
