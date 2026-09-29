@@ -4,9 +4,14 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
     $TCA_N_ID = (int) ($_POST['TCA_N_ID'] ?? 0);
+    $sLabel = trim((string) ($_POST['TAG_CH_LABEL'] ?? ''));
 
     if ($TCA_N_ID <= 0) {
         throw new RuntimeException('Catégorie invalide');
+    }
+
+    if ($sLabel === '') {
+        throw new RuntimeException('Le libellé du tag est obligatoire');
     }
 
     $oCategory = $WM_ADMIN_conn->prepare(
@@ -50,7 +55,7 @@ try {
 
     $oInsert->execute([
         'TCA_N_ID' => $TCA_N_ID,
-        'TAG_CH_LABEL' => 'Nouveau tag',
+        'TAG_CH_LABEL' => $sLabel,
         'TAG_N_ORDER' => $nOrder,
         'TAG_CH_CREATION' => sSignature(),
     ]);
