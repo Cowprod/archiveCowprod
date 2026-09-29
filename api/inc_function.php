@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/inc_api_bdd_mysql.php';
+
 function sSignature(): string
 {
     if (!isset($_SESSION['sUser']) || trim((string) $_SESSION['sUser']) === '') {
