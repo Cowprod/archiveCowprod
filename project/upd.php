@@ -1,0 +1,238 @@
+<?php
+
+require_once __DIR__ . '/../secure.php';
+
+$PRO_N_ID = isset($_GET['PRO_N_ID']) ? (int) $_GET['PRO_N_ID'] : 0;
+
+if ($PRO_N_ID <= 0) {
+    http_response_code(400);
+    exit('Projet invalide');
+}
+
+$oProject = $WM_ADMIN_conn->prepare(
+    'SELECT
+        T_PROJECT.PRO_N_ID,
+        T_PROJECT.PRO_CH_LABEL,
+        T_PROJECT.PRO_TX_DESCRIPTION,
+        T_PROJECT.PRO_N_YEARSTART,
+        T_PROJECT.PRO_N_YEAREND
+     FROM T_PROJECT
+     WHERE T_PROJECT.PRO_N_ID = :PRO_N_ID
+       AND T_PROJECT.PRO_DT_SUPPRESSION IS NULL'
+);
+
+$oProject->execute([
+    'PRO_N_ID' => $PRO_N_ID,
+]);
+
+$aProject = $oProject->fetch();
+
+if (!$aProject) {
+    http_response_code(404);
+    exit('Projet introuvable');
+}
+
+require_once __DIR__ . '/../top.php';
+?>
+
+<main class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <a href="/index.php" class="text-decoration-none">
+                <i class="fa fa-arrow-left me-2"></i>Catalogue
+            </a>
+            <h1 class="h3 mt-2 mb-0"><?php echo htmlspecialchars($aProject['PRO_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?></h1>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span id="dSaveStatus" class="text-body-secondary"></span>
+            <button type="button" class="btn btn-outline-danger btn-sm" id="bDeleteProject">
+                <i class="fa fa-trash me-2"></i>Supprimer
+            </button>
+        </div>
+    </div>
+
+    <input type="hidden" id="PRO_N_ID" value="<?php echo (int) $aProject['PRO_N_ID']; ?>">
+
+    <div class="card mb-4">
+        <div class="card-header">Projet</div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="PRO_CH_LABEL" class="form-label">Nom</label>
+                <input
+                    type="text"
+                    class="form-control js-autosave-text"
+                    id="PRO_CH_LABEL"
+                    data-field="PRO_CH_LABEL"
+                    value="<?php echo htmlspecialchars((string) $aProject['PRO_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>"
+                >
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6 col-lg-3">
+                    <label for="PRO_N_YEARSTART" class="form-label">Année de début</label>
+                    <input
+                        type="number"
+                        min="1900"
+                        max="2100"
+                        class="form-control js-autosave-change"
+                        id="PRO_N_YEARSTART"
+                        data-field="PRO_N_YEARSTART"
+                        value="<?php echo htmlspecialchars((string) ($aProject['PRO_N_YEARSTART'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                    >
+                </div>
+
+                <div class="col-sm-6 col-lg-3">
+                    <label for="PRO_N_YEAREND" class="form-label">Année de fin</label>
+                    <input
+                        type="number"
+                        min="1900"
+                        max="2100"
+                        class="form-control js-autosave-change"
+                        id="PRO_N_YEAREND"
+                        data-field="PRO_N_YEAREND"
+                        value="<?php echo htmlspecialchars((string) ($aProject['PRO_N_YEAREND'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                    >
+                </div>
+            </div>
+
+            <div>
+                <label for="PRO_TX_DESCRIPTION" class="form-label">Description</label>
+                <textarea
+                    class="form-control js-autosave-text"
+                    id="PRO_TX_DESCRIPTION"
+                    data-field="PRO_TX_DESCRIPTION"
+                    rows="8"
+                ><?php echo htmlspecialchars((string) ($aProject['PRO_TX_DESCRIPTION'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">Tags</div>
+        <div class="card-body text-body-secondary">
+            Bloc tags à venir.
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">URLs</div>
+        <div class="card-body text-body-secondary">
+            Bloc URLs à venir.
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Fichiers</div>
+        <div class="card-body text-body-secondary">
+            Bloc fichiers à venir.
+        </div>
+    </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="/assets/js/jquery.typing-0.2.0.js"></script>
+<script>
+$(function () {
+    let nPendingSave = 0;
+
+    function setSaveStatus(sStatus, bError) {
+        $('#dSaveStatus')
+            .toggleClass('text-danger', bError === true)
+            .toggleClass('text-body-secondary', bError !== true)
+            .text(sStatus);
+    }
+
+    function saveField($field) {
+        const sField = $field.data('field');
+        const sValue = $field.val();
+
+        nPendingSave++;
+        setSaveStatus('Enregistrement…', false);
+
+        $.ajax({
+            url: '/project/api/trUpd.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                PRO_N_ID: $('#PRO_N_ID').val(),
+                sField: sField,
+                sValue: sValue
+            }
+        })
+        .done(function (data) {
+            if (data.success !== true) {
+                setSaveStatus(data.message || 'Erreur', true);
+                return;
+            }
+
+            if (sField === 'PRO_CH_LABEL') {
+                $('h1').text(sValue || 'Projet');
+            }
+        })
+        .fail(function (xhr) {
+            let sMessage = 'Erreur de sauvegarde';
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                sMessage = xhr.responseJSON.message;
+            }
+
+            setSaveStatus(sMessage, true);
+        })
+        .always(function () {
+            nPendingSave--;
+
+            if (nPendingSave === 0 && !$('#dSaveStatus').hasClass('text-danger')) {
+                setSaveStatus('Enregistré', false);
+            }
+        });
+    }
+
+    $('.js-autosave-text').typing({
+        delay: 600,
+        start: function () {
+            setSaveStatus('Modification…', false);
+        },
+        stop: function (event, $elem) {
+            saveField($elem);
+        }
+    });
+
+    $('.js-autosave-change').on('change', function () {
+        saveField($(this));
+    });
+
+    $('#bDeleteProject').on('click', function () {
+        if (!confirm('Supprimer ce projet du catalogue ?')) {
+            return;
+        }
+
+        $.ajax({
+            url: '/project/api/trDelete.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                PRO_N_ID: $('#PRO_N_ID').val()
+            }
+        })
+        .done(function (data) {
+            if (data.success === true) {
+                window.location.href = '/index.php';
+                return;
+            }
+
+            setSaveStatus(data.message || 'Erreur lors de la suppression', true);
+        })
+        .fail(function (xhr) {
+            let sMessage = 'Erreur lors de la suppression';
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                sMessage = xhr.responseJSON.message;
+            }
+
+            setSaveStatus(sMessage, true);
+        });
+    });
+});
+</script>
+
+<?php require_once __DIR__ . '/../bottom.php'; ?>
