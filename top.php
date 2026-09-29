@@ -15,7 +15,7 @@ require_once __DIR__ . '/secure.php';
         .select2-container { flex: 1 1 auto; width: 1% !important; }
         .select2-container .select2-selection--multiple {
             min-height: 38px;
-            border: 0 !important;
+            border: 1px solid var(--bs-light) !important;
             box-shadow: none !important;
             background: transparent;
         }
@@ -26,6 +26,19 @@ require_once __DIR__ . '/secure.php';
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
             margin-left: .5rem;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            position: static;
+            border: 0;
+            background: transparent;
+            padding: 0;
+            margin: 0;
         }
     </style>
 </head>
