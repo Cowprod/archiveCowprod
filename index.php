@@ -35,16 +35,16 @@ $aParams = [];
 
 if ($sSearch !== '') {
     $sSql .= ' AND (
-        T_PROJECT.PRO_CH_LABEL LIKE :sSearch
-        OR T_PROJECT.PRO_TX_DESCRIPTION LIKE :sSearch
+        T_PROJECT.PRO_CH_LABEL LIKE :sSearchLabel
+        OR T_PROJECT.PRO_TX_DESCRIPTION LIKE :sSearchDescription
         OR EXISTS (
             SELECT 1
             FROM T_PROJECTURL
             WHERE T_PROJECTURL.PRO_N_ID = T_PROJECT.PRO_N_ID
               AND T_PROJECTURL.PRU_DT_SUPPRESSION IS NULL
               AND (
-                  T_PROJECTURL.PRU_CH_LABEL LIKE :sSearch
-                  OR T_PROJECTURL.PRU_CH_URL LIKE :sSearch
+                  T_PROJECTURL.PRU_CH_LABEL LIKE :sSearchUrlLabel
+                  OR T_PROJECTURL.PRU_CH_URL LIKE :sSearchUrl
               )
         )
         OR EXISTS (
@@ -53,12 +53,18 @@ if ($sSearch !== '') {
             WHERE T_PROJECTFILE.PRO_N_ID = T_PROJECT.PRO_N_ID
               AND T_PROJECTFILE.PRF_DT_SUPPRESSION IS NULL
               AND (
-                  T_PROJECTFILE.PRF_CH_LABEL LIKE :sSearch
-                  OR T_PROJECTFILE.PRF_CH_FILENAME LIKE :sSearch
+                  T_PROJECTFILE.PRF_CH_LABEL LIKE :sSearchFileLabel
+                  OR T_PROJECTFILE.PRF_CH_FILENAME LIKE :sSearchFilename
               )
         )
     )';
-    $aParams['sSearch'] = '%' . $sSearch . '%';
+    $sLike = '%' . $sSearch . '%';
+    $aParams['sSearchLabel'] = $sLike;
+    $aParams['sSearchDescription'] = $sLike;
+    $aParams['sSearchUrlLabel'] = $sLike;
+    $aParams['sSearchUrl'] = $sLike;
+    $aParams['sSearchFileLabel'] = $sLike;
+    $aParams['sSearchFilename'] = $sLike;
 }
 
 if ($nSearchYear !== null) {
