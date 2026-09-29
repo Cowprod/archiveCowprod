@@ -123,7 +123,7 @@ require_once __DIR__ . '/../top.php';
         </div>
         <div class="d-flex align-items-center gap-3">
             <span id="dSaveStatus" class="text-body-secondary"></span>
-            <button type="button" class="btn btn-outline-danger btn-sm" id="bDeleteProject">
+            <button type="button" class="btn btn-danger btn-sm" id="bDeleteProject">
                 <i class="fa fa-trash me-2"></i>Supprimer
             </button>
         </div>
@@ -206,7 +206,7 @@ require_once __DIR__ . '/../top.php';
                 </select>
                 <button
                     type="button"
-                    class="btn btn-outline-light tag-admin-button"
+                    class="btn btn-light tag-admin-button"
                     id="bAdminTags"
                     title="Administrer les tags"
                 >
@@ -230,7 +230,7 @@ require_once __DIR__ . '/../top.php';
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                            <button type="button" class="btn btn-outline-light" id="bAdminUrlTypes" title="Administrer les types d’URL"><i class="fa fa-cog"></i></button>
+                            <button type="button" class="btn btn-light" id="bAdminUrlTypes" title="Administrer les types d’URL"><i class="fa fa-cog"></i></button>
                         </div>
                     </div>
                     <div class="col-md">
@@ -243,7 +243,7 @@ require_once __DIR__ . '/../top.php';
                         <input type="number" min="1900" max="2100" class="form-control" name="PRU_N_YEAR" placeholder="Année">
                     </div>
                     <div class="col-auto">
-                        <button type="submit" class="btn btn-outline-success">
+                        <button type="submit" class="btn btn-success">
                             <i class="fa fa-plus-circle me-2"></i>Ajouter
                         </button>
                     </div>
@@ -256,7 +256,7 @@ require_once __DIR__ . '/../top.php';
                         <?php foreach ($aProjectUrls as $aProjectUrl): ?>
                             <tr data-url-id="<?php echo (int) $aProjectUrl['PRU_N_ID']; ?>">
                                 <td class="text-center" style="width:50px;">
-                                    <button type="button" class="btn btn-outline-danger btn-sm js-delete-url" title="Supprimer">
+                                    <button type="button" class="btn btn-danger btn-sm js-delete-url" title="Supprimer">
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
@@ -302,7 +302,7 @@ require_once __DIR__ . '/../top.php';
                                 </td>
                                 <td class="text-center" style="width:50px;">
                                     <a
-                                        class="btn btn-outline-light btn-sm"
+                                        class="btn btn-light btn-sm"
                                         href="<?php echo htmlspecialchars($aProjectUrl['PRU_CH_URL'], ENT_QUOTES, 'UTF-8'); ?>"
                                         target="_blank"
                                         rel="noopener"
@@ -368,11 +368,33 @@ $(function () {
             .text(sStatus);
     }
 
+    function setFieldState($field, sState) {
+        const $target = $field.hasClass('select2-hidden-accessible')
+            ? $field.next('.select2-container').find('.select2-selection')
+            : $field;
+
+        clearTimeout($field.data('autosave-state-timer'));
+        $target.removeClass('autosave-warning autosave-success autosave-danger');
+
+        if (sState === 'warning') {
+            $target.addClass('autosave-warning');
+        } else if (sState === 'success') {
+            $target.addClass('autosave-success');
+
+            $field.data('autosave-state-timer', setTimeout(function () {
+                $target.removeClass('autosave-success');
+            }, 1500));
+        } else if (sState === 'danger') {
+            $target.addClass('autosave-danger');
+        }
+    }
+
     function saveField($field) {
         const sField = $field.data('field');
         const sValue = $field.val();
 
         nPendingSave++;
+        setFieldState($field, 'warning');
         setSaveStatus('Enregistrement…', false);
 
         $.ajax({
@@ -387,9 +409,12 @@ $(function () {
         })
         .done(function (data) {
             if (data.success !== true) {
+                setFieldState($field, 'danger');
                 setSaveStatus(data.message || 'Erreur', true);
                 return;
             }
+
+            setFieldState($field, 'success');
 
             if (sField === 'PRO_CH_LABEL') {
                 $('h1').text(sValue || 'Projet');
@@ -402,6 +427,8 @@ $(function () {
                 sMessage = xhr.responseJSON.message;
             }
 
+            setFieldState($field, 'danger');
+            setFieldState($field, 'danger');
             setSaveStatus(sMessage, true);
         })
         .always(function () {
@@ -415,7 +442,8 @@ $(function () {
 
     $('.js-autosave-text').typing({
         delay: 600,
-        start: function () {
+        start: function (event, $elem) {
+            setFieldState($elem, 'warning');
             setSaveStatus('Modification…', false);
         },
         stop: function (event, $elem) {
@@ -424,6 +452,7 @@ $(function () {
     });
 
     $('.js-autosave-change').on('change', function () {
+        setFieldState($(this), 'warning');
         saveField($(this));
     });
 
@@ -443,7 +472,10 @@ $(function () {
     });
 
     $('#TAG_N_ID').on('change', function () {
+        const $field = $(this);
+
         nPendingSave++;
+        setFieldState($field, 'warning');
         setSaveStatus('Enregistrement…', false);
 
         $.ajax({
@@ -457,8 +489,12 @@ $(function () {
         })
         .done(function (data) {
             if (data.success !== true) {
+                setFieldState($field, 'danger');
                 setSaveStatus(data.message || 'Erreur', true);
+                return;
             }
+
+            setFieldState($field, 'success');
         })
         .fail(function (xhr) {
             let sMessage = 'Erreur de sauvegarde des tags';
@@ -497,6 +533,7 @@ $(function () {
         const $row = $field.closest('[data-url-id]');
 
         nPendingSave++;
+        setFieldState($field, 'warning');
         setSaveStatus('Enregistrement…', false);
 
         $.ajax({
@@ -511,10 +548,15 @@ $(function () {
         })
         .done(function (data) {
             if (data.success !== true) {
+                setFieldState($field, 'danger');
                 setSaveStatus(data.message || 'Erreur', true);
+                return;
             }
+
+            setFieldState($field, 'success');
         })
         .fail(function (xhr) {
+            setFieldState($field, 'danger');
             setSaveStatus(
                 xhr.responseJSON && xhr.responseJSON.message
                     ? xhr.responseJSON.message
@@ -533,12 +575,16 @@ $(function () {
 
     $('.js-url-text').typing({
         delay: 600,
+        start: function (event, $elem) {
+            setFieldState($elem, 'warning');
+        },
         stop: function (event, $elem) {
             saveUrl($elem);
         }
     });
 
     $('.js-url-change').on('change', function () {
+        setFieldState($(this), 'warning');
         saveUrl($(this));
     });
 
