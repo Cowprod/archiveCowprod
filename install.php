@@ -30,11 +30,11 @@ unset($_SESSION['sInstallError']);
                 <div class="card-body p-4">
                     <h1 class="h3 mb-4">Installation archiveCowprod</h1>
 
-                    <?php if ($sMessage !== ''): ?>
-                        <div class="alert alert-danger"><?php echo htmlspecialchars($sMessage, ENT_QUOTES, 'UTF-8'); ?></div>
-                    <?php endif; ?>
+                    <div id="dInstallMessage" class="alert alert-danger<?php echo $sMessage === '' ? ' d-none' : ''; ?>">
+                        <?php echo htmlspecialchars($sMessage, ENT_QUOTES, 'UTF-8'); ?>
+                    </div>
 
-                    <form method="post" action="/trInstall.php">
+                    <form id="fInstall" method="post" action="/trInstall.php">
                         <h2 class="h5 mt-2">Catalogue</h2>
 
                         <div class="row g-3 mb-4">
@@ -94,12 +94,64 @@ unset($_SESSION['sInstallError']);
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Installer</button>
+                        <button id="bInstall" type="submit" class="btn btn-primary">
+                            <span id="spInstallSpinner" class="spinner-border spinner-border-sm me-2 d-none" aria-hidden="true"></span>
+                            Installer
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(function () {
+    $('#fInstall').on('submit', function (e) {
+        e.preventDefault();
+
+        const $form = $(this);
+        const $button = $('#bInstall');
+        const $spinner = $('#spInstallSpinner');
+        const $message = $('#dInstallMessage');
+
+        $message.addClass('d-none').text('');
+        $button.prop('disabled', true);
+        $spinner.removeClass('d-none');
+
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            data: $form.serialize(),
+            dataType: 'json',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .done(function (data) {
+            if (data.success === true) {
+                window.location.href = data.redirect || '/index.php';
+                return;
+            }
+
+            $message.removeClass('d-none').text(data.message || 'Erreur lors de l’installation');
+        })
+        .fail(function (xhr) {
+            let sMessage = 'Erreur lors de l’installation';
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                sMessage = xhr.responseJSON.message;
+            }
+
+            $message.removeClass('d-none').text(sMessage);
+        })
+        .always(function () {
+            $button.prop('disabled', false);
+            $spinner.addClass('d-none');
+        });
+    });
+});
+</script>
 </body>
 </html>
