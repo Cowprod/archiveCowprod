@@ -44,7 +44,11 @@ foreach ($oTags->fetchAll() as $aTag) {
     <title>Tags</title>
     <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet">
-</head>
+<style>
+.autosave-warning{border-color:var(--bs-warning)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-warning-rgb),.25)!important}
+.autosave-success{border-color:var(--bs-success)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-success-rgb),.25)!important}
+.autosave-danger{border-color:var(--bs-danger)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-danger-rgb),.25)!important}
+</style></head>
 <body class="bg-body-tertiary">
 <div class="container-fluid py-3">
     <h1 class="h5 mb-3">Catégories et tags</h1>
@@ -67,7 +71,7 @@ foreach ($oTags->fetchAll() as $aTag) {
                     <option value="<?php echo $sColor; ?>"><?php echo $sColor; ?></option>
                 <?php endforeach; ?>
             </select>
-            <button type="submit" class="btn btn-outline-success">
+            <button type="submit" class="btn btn-success">
                 <i class="fa fa-plus-circle me-2"></i>Ajouter
             </button>
         </div>
@@ -81,7 +85,7 @@ foreach ($oTags->fetchAll() as $aTag) {
                 <div class="input-group">
                     <button
                         type="button"
-                        class="btn btn-outline-danger js-delete-category"
+                        class="btn btn-danger js-delete-category"
                         title="Supprimer la catégorie"
                     >
                         <i class="fa fa-trash"></i>
@@ -123,7 +127,7 @@ foreach ($oTags->fetchAll() as $aTag) {
                             placeholder="Libellé"
                             required
                         >
-                        <button type="submit" class="btn btn-outline-success">
+                        <button type="submit" class="btn btn-success">
                             <i class="fa fa-plus-circle me-2"></i>Ajouter
                         </button>
                     </div>
@@ -137,7 +141,7 @@ foreach ($oTags->fetchAll() as $aTag) {
                                     <td class="text-center" style="width:50px;">
                                         <button
                                             type="button"
-                                            class="btn btn-outline-danger btn-sm js-delete-tag"
+                                            class="btn btn-danger btn-sm js-delete-tag"
                                             title="Supprimer le tag"
                                         >
                                             <i class="fa fa-trash"></i>
@@ -165,6 +169,22 @@ foreach ($oTags->fetchAll() as $aTag) {
 <script src="/assets/js/jquery.typing-0.2.0.js"></script>
 <script>
 $(function () {
+    function setFieldState($field, sState) {
+        clearTimeout($field.data('autosave-state-timer'));
+        $field.removeClass('autosave-warning autosave-success autosave-danger');
+
+        if (sState === 'warning') {
+            $field.addClass('autosave-warning');
+        } else if (sState === 'success') {
+            $field.addClass('autosave-success');
+            $field.data('autosave-state-timer', setTimeout(function () {
+                $field.removeClass('autosave-success');
+            }, 1500));
+        } else if (sState === 'danger') {
+            $field.addClass('autosave-danger');
+        }
+    }
+
     function showError(sMessage) {
         $('#dMessage').removeClass('d-none').text(sMessage);
     }
@@ -201,26 +221,35 @@ $(function () {
 
     function saveCategory($field) {
         const $card = $field.closest('[data-category-id]');
+        setFieldState($field, 'warning');
 
         ajaxPost('/tag/api/trUpdCategory.php', {
             TCA_N_ID: $card.data('category-id'),
             sField: $field.data('field'),
             sValue: $field.val()
+        }, function () {
+            setFieldState($field, 'success');
         });
     }
 
     function saveTag($field) {
         const $row = $field.closest('[data-tag-id]');
+        setFieldState($field, 'warning');
 
         ajaxPost('/tag/api/trUpdTag.php', {
             TAG_N_ID: $row.data('tag-id'),
             sField: $field.data('field'),
             sValue: $field.val()
+        }, function () {
+            setFieldState($field, 'success');
         });
     }
 
     $('.js-category-text').typing({
         delay: 500,
+        start: function (event, $elem) {
+            setFieldState($elem, 'warning');
+        },
         stop: function (event, $elem) {
             saveCategory($elem);
         }
@@ -228,6 +257,9 @@ $(function () {
 
     $('.js-tag-text').typing({
         delay: 500,
+        start: function (event, $elem) {
+            setFieldState($elem, 'warning');
+        },
         stop: function (event, $elem) {
             saveTag($elem);
         }
