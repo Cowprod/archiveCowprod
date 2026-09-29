@@ -59,6 +59,21 @@ require_once __DIR__ . '/secure.php';
             padding: 0;
             margin: 0;
         }
+
+        .autosave-warning {
+            border-color: var(--bs-warning) !important;
+            box-shadow: 0 0 0 .15rem rgba(var(--bs-warning-rgb), .25) !important;
+        }
+
+        .autosave-success {
+            border-color: var(--bs-success) !important;
+            box-shadow: 0 0 0 .15rem rgba(var(--bs-success-rgb), .25) !important;
+        }
+
+        .autosave-danger {
+            border-color: var(--bs-danger) !important;
+            box-shadow: 0 0 0 .15rem rgba(var(--bs-danger-rgb), .25) !important;
+        }
     </style>
 </head>
 <body>
