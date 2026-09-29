@@ -10,7 +10,6 @@ try {
     $aAllowedFields = [
         'TCA_CH_LABEL' => 'text',
         'TCA_CH_COLOR' => 'color',
-        'TCA_N_ORDER' => 'int',
     ];
 
     if ($TCA_N_ID <= 0 || !isset($aAllowedFields[$sField])) {
@@ -29,16 +28,6 @@ try {
         }
     }
 
-    if ($aAllowedFields[$sField] === 'int') {
-        if (!preg_match('/^-?\d+$/', $sValue)) {
-            throw new RuntimeException('Ordre invalide');
-        }
-
-        $mValue = (int) $sValue;
-    } else {
-        $mValue = $sValue;
-    }
-
     $WM_ADMIN_conn->beginTransaction();
 
     historiseTable('T_TAGCATEGORY', 'TCA', $TCA_N_ID, $WM_ADMIN_conn);
@@ -50,9 +39,10 @@ try {
            AND T_TAGCATEGORY.TCA_DT_SUPPRESSION IS NULL'
     );
 
-    $oUpdate->bindValue(':sValue', $mValue, is_int($mValue) ? PDO::PARAM_INT : PDO::PARAM_STR);
-    $oUpdate->bindValue(':TCA_N_ID', $TCA_N_ID, PDO::PARAM_INT);
-    $oUpdate->execute();
+    $oUpdate->execute([
+        'sValue' => $sValue,
+        'TCA_N_ID' => $TCA_N_ID,
+    ]);
 
     if ($oUpdate->rowCount() !== 1) {
         throw new RuntimeException('Catégorie introuvable');
