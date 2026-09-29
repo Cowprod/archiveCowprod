@@ -47,97 +47,115 @@ foreach ($oTags->fetchAll() as $aTag) {
 </head>
 <body class="bg-body-tertiary">
 <div class="container-fluid py-3">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h1 class="h5 mb-0">Catégories et tags</h1>
-        <button type="button" class="btn btn-primary btn-sm" id="bAddCategory">
-            <i class="fa fa-plus me-2"></i>Catégorie
-        </button>
-    </div>
+    <h1 class="h5 mb-3">Catégories et tags</h1>
 
     <div id="dMessage" class="alert alert-danger d-none"></div>
 
+    <form id="fAddCategory" class="mb-3" autocomplete="off">
+        <div class="input-group">
+            <span class="input-group-text">Catégorie</span>
+            <input
+                type="text"
+                class="form-control"
+                id="TCA_CH_LABEL_ADD"
+                name="TCA_CH_LABEL"
+                placeholder="Libellé"
+                required
+            >
+            <select class="form-select" id="TCA_CH_COLOR_ADD" name="TCA_CH_COLOR" style="max-width:180px;">
+                <?php foreach (['primary','secondary','success','danger','warning','info','light','dark'] as $sColor): ?>
+                    <option value="<?php echo $sColor; ?>"><?php echo $sColor; ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" class="btn btn-outline-success">
+                <i class="fa fa-plus-circle me-2"></i>Ajouter
+            </button>
+        </div>
+    </form>
+
     <?php foreach ($aCategories as $aCategory): ?>
         <?php $TCA_N_ID = (int) $aCategory['TCA_N_ID']; ?>
+
         <div class="card mb-3" data-category-id="<?php echo $TCA_N_ID; ?>">
             <div class="card-header">
-                <div class="row g-2 align-items-center">
-                    <div class="col">
-                        <input
-                            type="text"
-                            class="form-control form-control-sm js-category-text"
-                            data-field="TCA_CH_LABEL"
-                            value="<?php echo htmlspecialchars($aCategory['TCA_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>"
-                        >
-                    </div>
-                    <div class="col-sm-3">
-                        <select class="form-select form-select-sm js-category-change" data-field="TCA_CH_COLOR">
-                            <?php foreach (['primary','secondary','success','danger','warning','info','light','dark'] as $sColor): ?>
-                                <option
-                                    value="<?php echo $sColor; ?>"
-                                    <?php echo $aCategory['TCA_CH_COLOR'] === $sColor ? 'selected' : ''; ?>
-                                >
-                                    <?php echo $sColor; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-sm-2">
-                        <input
-                            type="number"
-                            class="form-control form-control-sm js-category-change"
-                            data-field="TCA_N_ORDER"
-                            value="<?php echo (int) $aCategory['TCA_N_ORDER']; ?>"
-                        >
-                    </div>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-outline-danger btn-sm js-delete-category">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </div>
+                <div class="input-group">
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger js-delete-category"
+                        title="Supprimer la catégorie"
+                    >
+                        <i class="fa fa-trash"></i>
+                    </button>
+
+                    <input
+                        type="text"
+                        class="form-control js-category-text"
+                        data-field="TCA_CH_LABEL"
+                        value="<?php echo htmlspecialchars($aCategory['TCA_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>"
+                    >
+
+                    <select
+                        class="form-select js-category-change"
+                        data-field="TCA_CH_COLOR"
+                        style="max-width:180px;"
+                    >
+                        <?php foreach (['primary','secondary','success','danger','warning','info','light','dark'] as $sColor): ?>
+                            <option
+                                value="<?php echo $sColor; ?>"
+                                <?php echo $aCategory['TCA_CH_COLOR'] === $sColor ? 'selected' : ''; ?>
+                            >
+                                <?php echo $sColor; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
 
             <div class="card-body">
-                <table class="table table-sm align-middle mb-3">
-                    <thead>
-                        <tr>
-                            <th>Tag</th>
-                            <th style="width:120px;">Ordre</th>
-                            <th style="width:50px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($aTagsByCategory[$TCA_N_ID] ?? [] as $aTag): ?>
-                            <tr data-tag-id="<?php echo (int) $aTag['TAG_N_ID']; ?>">
-                                <td>
-                                    <input
-                                        type="text"
-                                        class="form-control form-control-sm js-tag-text"
-                                        data-field="TAG_CH_LABEL"
-                                        value="<?php echo htmlspecialchars($aTag['TAG_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    >
-                                </td>
-                                <td>
-                                    <input
-                                        type="number"
-                                        class="form-control form-control-sm js-tag-change"
-                                        data-field="TAG_N_ORDER"
-                                        value="<?php echo (int) $aTag['TAG_N_ORDER']; ?>"
-                                    >
-                                </td>
-                                <td class="text-end">
-                                    <button type="button" class="btn btn-outline-danger btn-sm js-delete-tag">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                <form class="fAddTag mb-3" autocomplete="off">
+                    <input type="hidden" name="TCA_N_ID" value="<?php echo $TCA_N_ID; ?>">
+                    <div class="input-group">
+                        <span class="input-group-text">Tag</span>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="TAG_CH_LABEL"
+                            placeholder="Libellé"
+                            required
+                        >
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fa fa-plus-circle me-2"></i>Ajouter
+                        </button>
+                    </div>
+                </form>
 
-                <button type="button" class="btn btn-outline-primary btn-sm js-add-tag">
-                    <i class="fa fa-plus me-2"></i>Tag
-                </button>
+                <?php if (!empty($aTagsByCategory[$TCA_N_ID])): ?>
+                    <table class="table table-bordered table-striped table-sm align-middle mb-0">
+                        <tbody>
+                            <?php foreach ($aTagsByCategory[$TCA_N_ID] as $aTag): ?>
+                                <tr data-tag-id="<?php echo (int) $aTag['TAG_N_ID']; ?>">
+                                    <td class="text-center" style="width:50px;">
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-danger btn-sm js-delete-tag"
+                                            title="Supprimer le tag"
+                                        >
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="text"
+                                            class="form-control form-control-sm js-tag-text"
+                                            data-field="TAG_CH_LABEL"
+                                            value="<?php echo htmlspecialchars($aTag['TAG_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        >
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
             </div>
         </div>
     <?php endforeach; ?>
@@ -219,22 +237,22 @@ $(function () {
         saveCategory($(this));
     });
 
-    $('.js-tag-change').on('change', function () {
-        saveTag($(this));
-    });
+    $('#fAddCategory').on('submit', function (e) {
+        e.preventDefault();
 
-    $('#bAddCategory').on('click', function () {
-        ajaxPost('/tag/api/trAddCategory.php', {}, function () {
+        const $form = $(this);
+
+        ajaxPost('/tag/api/trAddCategory.php', $form.serialize(), function () {
             window.location.reload();
         });
     });
 
-    $('.js-add-tag').on('click', function () {
-        const $card = $(this).closest('[data-category-id]');
+    $('.fAddTag').on('submit', function (e) {
+        e.preventDefault();
 
-        ajaxPost('/tag/api/trAddTag.php', {
-            TCA_N_ID: $card.data('category-id')
-        }, function () {
+        const $form = $(this);
+
+        ajaxPost('/tag/api/trAddTag.php', $form.serialize(), function () {
             window.location.reload();
         });
     });
