@@ -222,7 +222,7 @@ require_once __DIR__ . '/../top.php';
             <form id="fAddUrl" class="mb-3">
                 <div class="row g-2">
                     <div class="col-md-3">
-                        <select class="form-select" name="UTY_N_ID" required>
+                        <div class="input-group"><select class="form-select" name="UTY_N_ID" required>
                             <option value="">Type</option>
                             <?php foreach ($aUrlTypes as $aUrlType): ?>
                                 <option value="<?php echo (int) $aUrlType['UTY_N_ID']; ?>">
@@ -230,6 +230,8 @@ require_once __DIR__ . '/../top.php';
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                            <button type="button" class="btn btn-outline-light" id="bAdminUrlTypes" title="Administrer les types d’URL"><i class="fa fa-cog"></i></button>
+                        </div>
                     </div>
                     <div class="col-md">
                         <input type="url" class="form-control" name="PRU_CH_URL" placeholder="https://…" required>
@@ -325,6 +327,13 @@ require_once __DIR__ . '/../top.php';
             Bloc fichiers à venir.
         </div>
     </div>
+    <div class="modal fade" id="mAdminUrlTypes" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content">
+            <div class="modal-header"><h2 class="modal-title fs-5">Administrer les types d’URL</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body p-0"><iframe id="fAdminUrlTypes" src="about:blank" style="width:100%;height:60vh;border:0;"></iframe></div>
+        </div></div>
+    </div>
+
     <div class="modal fade" id="mAdminTags" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
@@ -477,6 +486,12 @@ $(function () {
     document.getElementById('mAdminTags').addEventListener('hidden.bs.modal', function () {
         window.location.reload();
     });
+
+    $('#bAdminUrlTypes').on('click', function () {
+        $('#fAdminUrlTypes').attr('src', '/urlType/index.php');
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('mAdminUrlTypes')).show();
+    });
+    document.getElementById('mAdminUrlTypes').addEventListener('hidden.bs.modal', function () { window.location.reload(); });
 
     function saveUrl($field) {
         const $row = $field.closest('[data-url-id]');
