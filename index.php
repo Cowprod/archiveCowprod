@@ -18,6 +18,31 @@ $oProjects = $WM_ADMIN_conn->query(
 
 $aProjects = $oProjects->fetchAll();
 
+$oProjectTags = $WM_ADMIN_conn->query(
+    'SELECT
+        T_PROJECTTAG.PRO_N_ID,
+        T_TAG.TAG_CH_LABEL,
+        T_TAGCATEGORY.TCA_CH_COLOR
+     FROM T_PROJECTTAG
+     INNER JOIN T_TAG
+        ON T_TAG.TAG_N_ID = T_PROJECTTAG.TAG_N_ID
+       AND T_TAG.TAG_DT_SUPPRESSION IS NULL
+     INNER JOIN T_TAGCATEGORY
+        ON T_TAGCATEGORY.TCA_N_ID = T_TAG.TCA_N_ID
+       AND T_TAGCATEGORY.TCA_DT_SUPPRESSION IS NULL
+     WHERE T_PROJECTTAG.PTA_DT_SUPPRESSION IS NULL
+     ORDER BY
+        T_TAGCATEGORY.TCA_N_ORDER ASC,
+        T_TAG.TAG_N_ORDER ASC,
+        T_TAG.TAG_CH_LABEL ASC'
+);
+
+$aTagsByProject = [];
+
+foreach ($oProjectTags->fetchAll() as $aTag) {
+    $aTagsByProject[(int) $aTag['PRO_N_ID']][] = $aTag;
+}
+
 require_once __DIR__ . '/top.php';
 ?>
 
@@ -70,6 +95,16 @@ require_once __DIR__ . '/top.php';
                                     <span class="text-body-secondary text-nowrap"><?php echo htmlspecialchars($sYears, ENT_QUOTES, 'UTF-8'); ?></span>
                                 <?php endif; ?>
                             </div>
+
+                            <?php if (!empty($aTagsByProject[(int) $aProject['PRO_N_ID']])): ?>
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    <?php foreach ($aTagsByProject[(int) $aProject['PRO_N_ID']] as $aTag): ?>
+                                        <span class="badge text-bg-<?php echo htmlspecialchars($aTag['TCA_CH_COLOR'], ENT_QUOTES, 'UTF-8'); ?>">
+                                            <?php echo htmlspecialchars($aTag['TAG_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
 
                             <?php if (trim((string) ($aProject['PRO_TX_DESCRIPTION'] ?? '')) !== ''): ?>
                                 <p class="mb-0 text-body-secondary">

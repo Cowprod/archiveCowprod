@@ -32,6 +32,57 @@ if (!$aProject) {
     exit('Projet introuvable');
 }
 
+$oTags = $WM_ADMIN_conn->query(
+    'SELECT
+        T_TAGCATEGORY.TCA_N_ID,
+        T_TAGCATEGORY.TCA_CH_LABEL,
+        T_TAGCATEGORY.TCA_CH_COLOR,
+        T_TAG.TAG_N_ID,
+        T_TAG.TAG_CH_LABEL
+     FROM T_TAGCATEGORY
+     INNER JOIN T_TAG
+        ON T_TAG.TCA_N_ID = T_TAGCATEGORY.TCA_N_ID
+       AND T_TAG.TAG_DT_SUPPRESSION IS NULL
+     WHERE T_TAGCATEGORY.TCA_DT_SUPPRESSION IS NULL
+     ORDER BY
+        T_TAGCATEGORY.TCA_N_ORDER ASC,
+        T_TAGCATEGORY.TCA_CH_LABEL ASC,
+        T_TAG.TAG_N_ORDER ASC,
+        T_TAG.TAG_CH_LABEL ASC'
+);
+
+$aTagsByCategory = [];
+
+foreach ($oTags->fetchAll() as $aTag) {
+    $nCategoryId = (int) $aTag['TCA_N_ID'];
+
+    if (!isset($aTagsByCategory[$nCategoryId])) {
+        $aTagsByCategory[$nCategoryId] = [
+            'label' => $aTag['TCA_CH_LABEL'],
+            'color' => $aTag['TCA_CH_COLOR'],
+            'tags' => [],
+        ];
+    }
+
+    $aTagsByCategory[$nCategoryId]['tags'][] = $aTag;
+}
+
+$oProjectTags = $WM_ADMIN_conn->prepare(
+    'SELECT T_PROJECTTAG.TAG_N_ID
+     FROM T_PROJECTTAG
+     WHERE T_PROJECTTAG.PRO_N_ID = :PRO_N_ID
+       AND T_PROJECTTAG.PTA_DT_SUPPRESSION IS NULL'
+);
+
+$oProjectTags->execute([
+    'PRO_N_ID' => $PRO_N_ID,
+]);
+
+$aSelectedTagIds = array_map(
+    'intval',
+    array_column($oProjectTags->fetchAll(), 'TAG_N_ID')
+);
+
 require_once __DIR__ . '/../top.php';
 ?>
 
@@ -109,8 +160,32 @@ require_once __DIR__ . '/../top.php';
 
     <div class="card mb-4">
         <div class="card-header">Tags</div>
-        <div class="card-body text-body-secondary">
-            Bloc tags à venir.
+        <div class="card-body">
+            <div class="input-group">
+                <select id="TAG_N_ID" class="form-select" multiple>
+                    <?php foreach ($aTagsByCategory as $aCategory): ?>
+                        <optgroup label="<?php echo htmlspecialchars($aCategory['label'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <?php foreach ($aCategory['tags'] as $aTag): ?>
+                                <option
+                                    value="<?php echo (int) $aTag['TAG_N_ID']; ?>"
+                                    data-color="<?php echo htmlspecialchars($aCategory['color'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    <?php echo in_array((int) $aTag['TAG_N_ID'], $aSelectedTagIds, true) ? 'selected' : ''; ?>
+                                >
+                                    <?php echo htmlspecialchars($aTag['TAG_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                    <?php endforeach; ?>
+                </select>
+                <button
+                    type="button"
+                    class="btn btn-light border"
+                    id="bAdminTags"
+                    title="Administrer les tags"
+                >
+                    <i class="fa fa-cog"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -127,9 +202,28 @@ require_once __DIR__ . '/../top.php';
             Bloc fichiers à venir.
         </div>
     </div>
+    <div class="modal fade" id="mAdminTags" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5">Administrer les tags</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe
+                        id="fAdminTags"
+                        src="about:blank"
+                        title="Administration des tags"
+                        style="width:100%;height:70vh;border:0;"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="/assets/js/jquery.typing-0.2.0.js"></script>
 <script>
 $(function () {
@@ -199,6 +293,66 @@ $(function () {
 
     $('.js-autosave-change').on('change', function () {
         saveField($(this));
+    });
+
+    function formatTag(state) {
+        if (!state.id) {
+            return state.text;
+        }
+
+        const sColor = $(state.element).data('color') || 'secondary';
+        return $('<span class="badge text-bg-' + sColor + '"></span>').text(state.text);
+    }
+
+    $('#TAG_N_ID').select2({
+        width: '100%',
+        placeholder: 'Ajouter des tags',
+        templateSelection: formatTag
+    });
+
+    $('#TAG_N_ID').on('change', function () {
+        nPendingSave++;
+        setSaveStatus('Enregistrement…', false);
+
+        $.ajax({
+            url: '/project/api/trTags.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                PRO_N_ID: $('#PRO_N_ID').val(),
+                TAG_N_ID: $(this).val() || []
+            }
+        })
+        .done(function (data) {
+            if (data.success !== true) {
+                setSaveStatus(data.message || 'Erreur', true);
+            }
+        })
+        .fail(function (xhr) {
+            let sMessage = 'Erreur de sauvegarde des tags';
+
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                sMessage = xhr.responseJSON.message;
+            }
+
+            setSaveStatus(sMessage, true);
+        })
+        .always(function () {
+            nPendingSave--;
+
+            if (nPendingSave === 0 && !$('#dSaveStatus').hasClass('text-danger')) {
+                setSaveStatus('Enregistré', false);
+            }
+        });
+    });
+
+    $('#bAdminTags').on('click', function () {
+        $('#fAdminTags').attr('src', '/tag/index.php');
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('mAdminTags')).show();
+    });
+
+    document.getElementById('mAdminTags').addEventListener('hidden.bs.modal', function () {
+        window.location.reload();
     });
 
     $('#bDeleteProject').on('click', function () {
