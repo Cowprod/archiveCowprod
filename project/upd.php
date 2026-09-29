@@ -83,6 +83,33 @@ $aSelectedTagIds = array_map(
     array_column($oProjectTags->fetchAll(), 'TAG_N_ID')
 );
 
+$oUrlTypes = $WM_ADMIN_conn->query(
+    'SELECT
+        T_URLTYPE.UTY_N_ID,
+        T_URLTYPE.UTY_CH_LABEL
+     FROM T_URLTYPE
+     WHERE T_URLTYPE.UTY_DT_SUPPRESSION IS NULL
+     ORDER BY T_URLTYPE.UTY_CH_LABEL ASC'
+);
+$aUrlTypes = $oUrlTypes->fetchAll();
+
+$oProjectUrls = $WM_ADMIN_conn->prepare(
+    'SELECT
+        T_PROJECTURL.PRU_N_ID,
+        T_PROJECTURL.UTY_N_ID,
+        T_PROJECTURL.PRU_CH_URL,
+        T_PROJECTURL.PRU_CH_LABEL,
+        T_PROJECTURL.PRU_N_YEAR
+     FROM T_PROJECTURL
+     WHERE T_PROJECTURL.PRO_N_ID = :PRO_N_ID
+       AND T_PROJECTURL.PRU_DT_SUPPRESSION IS NULL
+     ORDER BY
+        T_PROJECTURL.PRU_N_ORDER ASC,
+        T_PROJECTURL.PRU_N_ID ASC'
+);
+$oProjectUrls->execute(['PRO_N_ID' => $PRO_N_ID]);
+$aProjectUrls = $oProjectUrls->fetchAll();
+
 require_once __DIR__ . '/../top.php';
 ?>
 
@@ -191,8 +218,104 @@ require_once __DIR__ . '/../top.php';
 
     <div class="card mb-4">
         <div class="card-header">URLs</div>
-        <div class="card-body text-body-secondary">
-            Bloc URLs à venir.
+        <div class="card-body">
+            <form id="fAddUrl" class="mb-3">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <select class="form-select" name="UTY_N_ID" required>
+                            <option value="">Type</option>
+                            <?php foreach ($aUrlTypes as $aUrlType): ?>
+                                <option value="<?php echo (int) $aUrlType['UTY_N_ID']; ?>">
+                                    <?php echo htmlspecialchars($aUrlType['UTY_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md">
+                        <input type="url" class="form-control" name="PRU_CH_URL" placeholder="https://…" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="PRU_CH_LABEL" placeholder="Libellé facultatif">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" min="1900" max="2100" class="form-control" name="PRU_N_YEAR" placeholder="Année">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fa fa-plus-circle me-2"></i>Ajouter
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <?php if (count($aProjectUrls) > 0): ?>
+                <table class="table table-bordered table-striped table-sm align-middle mb-0">
+                    <tbody>
+                        <?php foreach ($aProjectUrls as $aProjectUrl): ?>
+                            <tr data-url-id="<?php echo (int) $aProjectUrl['PRU_N_ID']; ?>">
+                                <td class="text-center" style="width:50px;">
+                                    <button type="button" class="btn btn-outline-danger btn-sm js-delete-url" title="Supprimer">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                                <td style="width:180px;">
+                                    <select class="form-select form-select-sm js-url-change" data-field="UTY_N_ID">
+                                        <?php foreach ($aUrlTypes as $aUrlType): ?>
+                                            <option
+                                                value="<?php echo (int) $aUrlType['UTY_N_ID']; ?>"
+                                                <?php echo (int) $aProjectUrl['UTY_N_ID'] === (int) $aUrlType['UTY_N_ID'] ? 'selected' : ''; ?>
+                                            >
+                                                <?php echo htmlspecialchars($aUrlType['UTY_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input
+                                        type="url"
+                                        class="form-control form-control-sm js-url-text"
+                                        data-field="PRU_CH_URL"
+                                        value="<?php echo htmlspecialchars($aProjectUrl['PRU_CH_URL'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    >
+                                </td>
+                                <td style="width:240px;">
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-sm js-url-text"
+                                        data-field="PRU_CH_LABEL"
+                                        placeholder="Libellé"
+                                        value="<?php echo htmlspecialchars((string) ($aProjectUrl['PRU_CH_LABEL'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                    >
+                                </td>
+                                <td style="width:100px;">
+                                    <input
+                                        type="number"
+                                        min="1900"
+                                        max="2100"
+                                        class="form-control form-control-sm js-url-change"
+                                        data-field="PRU_N_YEAR"
+                                        placeholder="Année"
+                                        value="<?php echo htmlspecialchars((string) ($aProjectUrl['PRU_N_YEAR'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                    >
+                                </td>
+                                <td class="text-center" style="width:50px;">
+                                    <a
+                                        class="btn btn-outline-light btn-sm"
+                                        href="<?php echo htmlspecialchars($aProjectUrl['PRU_CH_URL'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        target="_blank"
+                                        rel="noopener"
+                                        title="Ouvrir"
+                                    >
+                                        <i class="fa fa-external-link"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <div class="text-body-secondary">Aucune URL.</div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -353,6 +476,117 @@ $(function () {
 
     document.getElementById('mAdminTags').addEventListener('hidden.bs.modal', function () {
         window.location.reload();
+    });
+
+    function saveUrl($field) {
+        const $row = $field.closest('[data-url-id]');
+
+        nPendingSave++;
+        setSaveStatus('Enregistrement…', false);
+
+        $.ajax({
+            url: '/project/api/trUpdUrl.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                PRU_N_ID: $row.data('url-id'),
+                sField: $field.data('field'),
+                sValue: $field.val()
+            }
+        })
+        .done(function (data) {
+            if (data.success !== true) {
+                setSaveStatus(data.message || 'Erreur', true);
+            }
+        })
+        .fail(function (xhr) {
+            setSaveStatus(
+                xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : 'Erreur de sauvegarde de l’URL',
+                true
+            );
+        })
+        .always(function () {
+            nPendingSave--;
+
+            if (nPendingSave === 0 && !$('#dSaveStatus').hasClass('text-danger')) {
+                setSaveStatus('Enregistré', false);
+            }
+        });
+    }
+
+    $('.js-url-text').typing({
+        delay: 600,
+        stop: function (event, $elem) {
+            saveUrl($elem);
+        }
+    });
+
+    $('.js-url-change').on('change', function () {
+        saveUrl($(this));
+    });
+
+    $('#fAddUrl').on('submit', function (e) {
+        e.preventDefault();
+
+        const $form = $(this);
+
+        $.ajax({
+            url: '/project/api/trAddUrl.php',
+            type: 'POST',
+            dataType: 'json',
+            data: $form.serialize() + '&PRO_N_ID=' + encodeURIComponent($('#PRO_N_ID').val())
+        })
+        .done(function (data) {
+            if (data.success === true) {
+                window.location.reload();
+                return;
+            }
+
+            setSaveStatus(data.message || 'Erreur', true);
+        })
+        .fail(function (xhr) {
+            setSaveStatus(
+                xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : 'Erreur lors de l’ajout de l’URL',
+                true
+            );
+        });
+    });
+
+    $('.js-delete-url').on('click', function () {
+        const $row = $(this).closest('[data-url-id]');
+
+        if (!confirm('Supprimer cette URL ?')) {
+            return;
+        }
+
+        $.ajax({
+            url: '/project/api/trDeleteUrl.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                PRU_N_ID: $row.data('url-id')
+            }
+        })
+        .done(function (data) {
+            if (data.success === true) {
+                $row.remove();
+                return;
+            }
+
+            setSaveStatus(data.message || 'Erreur', true);
+        })
+        .fail(function (xhr) {
+            setSaveStatus(
+                xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : 'Erreur lors de la suppression de l’URL',
+                true
+            );
+        });
     });
 
     $('#bDeleteProject').on('click', function () {
