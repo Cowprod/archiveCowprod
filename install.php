@@ -137,11 +137,29 @@ $(function () {
 
             $message.removeClass('d-none').text(data.message || 'Erreur lors de l’installation');
         })
-        .fail(function (xhr) {
-            let sMessage = 'Erreur lors de l’installation';
+        .fail(function (xhr, textStatus, errorThrown) {
+            let sMessage = '';
 
             if (xhr.responseJSON && xhr.responseJSON.message) {
                 sMessage = xhr.responseJSON.message;
+            } else if (xhr.responseText) {
+                try {
+                    const data = JSON.parse(xhr.responseText);
+
+                    if (data.message) {
+                        sMessage = data.message;
+                    }
+                } catch (e) {
+                    sMessage = xhr.responseText.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();
+                }
+            }
+
+            if (!sMessage) {
+                sMessage = 'Erreur HTTP ' + xhr.status;
+
+                if (errorThrown) {
+                    sMessage += ' - ' + errorThrown;
+                }
             }
 
             $message.removeClass('d-none').text(sMessage);
