@@ -374,8 +374,11 @@ require_once __DIR__ . '/../top.php';
                 </div>
             </form>
 
-            <div id="dFileDrop" class="border border-light rounded p-3 mb-3 text-center text-body-secondary">
-                Déposer des fichiers ici ou coller une image depuis le presse-papiers
+            <div id="dFileDrop" class="border border-light rounded p-3 mb-3 text-center text-body-secondary" tabindex="0">
+                <div>Déposer des fichiers ici ou coller une image depuis le presse-papiers</div>
+                <button type="button" class="btn btn-light btn-sm mt-2" id="bPasteImage">
+                    <i class="fa fa-clipboard me-2"></i>Coller l’image
+                </button>
             </div>
 
             <?php if (count($aProjectFiles) > 0): ?>
@@ -747,10 +750,34 @@ $(function () {
     });
     document.getElementById('mAdminFileTypes').addEventListener('hidden.bs.modal', function () { window.location.reload(); });
 
+    function getClipboardFileType() {
+        let nType = $('#FTY_N_ID_ADD').val();
+
+        if (nType) {
+            return nType;
+        }
+
+        $('#FTY_N_ID_ADD option').each(function () {
+            const sLabel = $(this).text().trim().toLowerCase();
+
+            if (!nType && (sLabel === 'screenshot' || sLabel === 'image')) {
+                nType = $(this).val();
+            }
+        });
+
+        if (nType) {
+            $('#FTY_N_ID_ADD').val(nType);
+        }
+
+        return nType;
+    }
+
     function uploadFile(oFile, bClipboard) {
-        const nType = $('#FTY_N_ID_ADD').val();
+        const nType = bClipboard ? getClipboardFileType() : $('#FTY_N_ID_ADD').val();
+
         if (!nType) {
-            setSaveStatus('Choisir un type de fichier', true);
+            setSaveStatus('Choisir un type de fichier avant l’envoi', true);
+            $('#FTY_N_ID_ADD').addClass('autosave-warning');
             return;
         }
         const fd = new FormData();
@@ -787,14 +814,74 @@ $(function () {
             Array.from(files).forEach(function (file) { uploadFile(file, false); });
         });
 
-    $(document).on('paste', function (e) {
-        const items = (e.originalEvent.clipboardData || {}).items || [];
-        for (const item of items) {
-            if (item.kind === 'file' && item.type.indexOf('image/') === 0) {
-                uploadFile(item.getAsFile(), true);
-                e.preventDefault();
-                break;
+    function uploadClipboardData(oClipboardData) {
+        if (!oClipboardData) {
+            return false;
+        }
+
+        if (oClipboardData.files && oClipboardData.files.length > 0) {
+            for (const oFile of oClipboardData.files) {
+                if (oFile.type && oFile.type.indexOf('image/') === 0) {
+                    uploadFile(oFile, true);
+                    return true;
+                }
             }
+        }
+
+        const aItems = oClipboardData.items || [];
+
+        for (const oItem of aItems) {
+            if (oItem.kind === 'file' && oItem.type.indexOf('image/') === 0) {
+                const oFile = oItem.getAsFile();
+
+                if (oFile) {
+                    uploadFile(oFile, true);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    $(document).on('paste', function (e) {
+        if (uploadClipboardData(e.originalEvent.clipboardData)) {
+            e.preventDefault();
+        }
+    });
+
+    $('#bPasteImage').on('click', async function () {
+        if (!navigator.clipboard || !navigator.clipboard.read) {
+            setSaveStatus('Le navigateur ne permet pas la lecture directe du presse-papiers. Utiliser Cmd/Ctrl+V dans la page.', true);
+            $('#dFileDrop').trigger('focus');
+            return;
+        }
+
+        try {
+            const aClipboardItems = await navigator.clipboard.read();
+
+            for (const oClipboardItem of aClipboardItems) {
+                for (const sType of oClipboardItem.types) {
+                    if (sType.indexOf('image/') !== 0) {
+                        continue;
+                    }
+
+                    const oBlob = await oClipboardItem.getType(sType);
+                    const sExtension = sType === 'image/jpeg' ? 'jpg' : (sType.split('/')[1] || 'png');
+                    const oFile = new File(
+                        [oBlob],
+                        'presse-papiers_' + Date.now() + '.' + sExtension,
+                        {type: sType}
+                    );
+
+                    uploadFile(oFile, true);
+                    return;
+                }
+            }
+
+            setSaveStatus('Aucune image trouvée dans le presse-papiers', true);
+        } catch (e) {
+            setSaveStatus('Lecture du presse-papiers refusée ou indisponible', true);
         }
     });
 
