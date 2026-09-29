@@ -39,8 +39,62 @@ function archiveSafeFilename(string $sFilename): string
 
 function archiveMimeType(string $sPath): string
 {
-    $oFinfo = new finfo(FILEINFO_MIME_TYPE);
-    return (string) $oFinfo->file($sPath);
+    if (class_exists('finfo')) {
+        $oFinfo = new finfo(FILEINFO_MIME_TYPE);
+        $sMime = (string) $oFinfo->file($sPath);
+
+        if ($sMime !== '') {
+            return $sMime;
+        }
+    }
+
+    if (function_exists('mime_content_type')) {
+        $sMime = (string) @mime_content_type($sPath);
+
+        if ($sMime !== '') {
+            return $sMime;
+        }
+    }
+
+    if (function_exists('getimagesize')) {
+        $aImageInfo = @getimagesize($sPath);
+
+        if (is_array($aImageInfo) && isset($aImageInfo['mime'])) {
+            return (string) $aImageInfo['mime'];
+        }
+    }
+
+    $sExtension = strtolower((string) pathinfo($sPath, PATHINFO_EXTENSION));
+
+    $aMimeByExtension = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'svg' => 'image/svg+xml',
+        'pdf' => 'application/pdf',
+        'zip' => 'application/zip',
+        '7z' => 'application/x-7z-compressed',
+        'rar' => 'application/vnd.rar',
+        'txt' => 'text/plain',
+        'md' => 'text/markdown',
+        'html' => 'text/html',
+        'htm' => 'text/html',
+        'css' => 'text/css',
+        'js' => 'text/javascript',
+        'json' => 'application/json',
+        'xml' => 'application/xml',
+        'csv' => 'text/csv',
+        'doc' => 'application/msword',
+        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'xls' => 'application/vnd.ms-excel',
+        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'ppt' => 'application/vnd.ms-powerpoint',
+        'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    ];
+
+    return $aMimeByExtension[$sExtension] ?? 'application/octet-stream';
 }
 
 function archiveIsImageMime(string $sMime): bool
