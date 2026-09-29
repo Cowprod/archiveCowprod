@@ -189,7 +189,7 @@ $(function () {
         $('#dMessage').removeClass('d-none').text(sMessage);
     }
 
-    function ajaxPost(sUrl, data, fDone) {
+    function ajaxPost(sUrl, data, fDone, fFail) {
         $('#dMessage').addClass('d-none').text('');
 
         $.ajax({
@@ -201,6 +201,10 @@ $(function () {
         .done(function (response) {
             if (response.success !== true) {
                 showError(response.message || 'Erreur');
+
+                if (fFail) {
+                    fFail();
+                }
                 return;
             }
 
@@ -216,6 +220,10 @@ $(function () {
             }
 
             showError(sMessage);
+
+            if (fFail) {
+                fFail();
+            }
         });
     }
 
@@ -229,6 +237,8 @@ $(function () {
             sValue: $field.val()
         }, function () {
             setFieldState($field, 'success');
+        }, function () {
+            setFieldState($field, 'danger');
         });
     }
 
@@ -242,6 +252,8 @@ $(function () {
             sValue: $field.val()
         }, function () {
             setFieldState($field, 'success');
+        }, function () {
+            setFieldState($field, 'danger');
         });
     }
 
