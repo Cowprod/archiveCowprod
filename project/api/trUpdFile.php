@@ -1,0 +1,7 @@
+<?php
+require_once __DIR__.'/../../secure.php';header('Content-Type: application/json; charset=utf-8');
+try{$id=(int)($_POST['PRF_N_ID']??0);$field=trim((string)($_POST['sField']??''));$v=trim((string)($_POST['sValue']??''));
+$allowed=['FTY_N_ID'=>'type','PRF_CH_LABEL'=>'text','PRF_N_YEAR'=>'year'];if($id<=0||!isset($allowed[$field]))throw new RuntimeException('Fichier invalide');
+if($allowed[$field]==='type'){$value=(int)$v;archiveAssertFileType($WM_ADMIN_conn,$value);}elseif($allowed[$field]==='year'){$value=archiveValidateYear($v);}else{$value=$v===''?null:$v;}
+$WM_ADMIN_conn->beginTransaction();historiseTable('T_PROJECTFILE','PRF',$id,$WM_ADMIN_conn);$q=$WM_ADMIN_conn->prepare('UPDATE T_PROJECTFILE SET '.$field.'=:v WHERE PRF_N_ID=:id AND PRF_DT_SUPPRESSION IS NULL');$q->bindValue(':v',$value,$value===null?PDO::PARAM_NULL:(is_int($value)?PDO::PARAM_INT:PDO::PARAM_STR));$q->bindValue(':id',$id,PDO::PARAM_INT);$q->execute();if($q->rowCount()!==1)throw new RuntimeException('Fichier introuvable');$WM_ADMIN_conn->commit();echo json_encode(['success'=>true]);}
+catch(Throwable $e){if(isset($WM_ADMIN_conn)&&$WM_ADMIN_conn->inTransaction())$WM_ADMIN_conn->rollBack();http_response_code(400);echo json_encode(['success'=>false,'message'=>$e->getMessage()]);}
