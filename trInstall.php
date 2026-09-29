@@ -7,14 +7,35 @@ if (session_status() === PHP_SESSION_NONE) {
 date_default_timezone_set('Europe/Paris');
 
 $configFile = __DIR__ . '/config/config.php';
+$bAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+    && strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
 if (file_exists($configFile)) {
+    if ($bAjax) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => true,
+            'redirect' => '/login.php',
+        ]);
+        exit;
+    }
+
     header('Location: /login.php');
     exit;
 }
 
-function installError(string $sMessage): never
+function installError(string $sMessage, bool $bAjax): never
 {
+    if ($bAjax) {
+        http_response_code(400);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'message' => $sMessage,
+        ]);
+        exit;
+    }
+
     $_SESSION['sInstallError'] = $sMessage;
     header('Location: /install.php');
     exit;
@@ -240,6 +261,15 @@ try {
     $_SESSION['logged'] = '1';
     $_SESSION['sUser'] = $sUser;
 
+    if ($bAjax) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => true,
+            'redirect' => '/index.php',
+        ]);
+        exit;
+    }
+
     header('Location: /index.php');
     exit;
 } catch (Throwable $e) {
@@ -247,5 +277,5 @@ try {
         $WM_ADMIN_conn->rollBack();
     }
 
-    installError($e->getMessage());
+    installError($e->getMessage(), $bAjax);
 }
