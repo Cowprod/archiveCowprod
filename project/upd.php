@@ -110,6 +110,31 @@ $oProjectUrls = $WM_ADMIN_conn->prepare(
 $oProjectUrls->execute(['PRO_N_ID' => $PRO_N_ID]);
 $aProjectUrls = $oProjectUrls->fetchAll();
 
+$aFileTypes = $WM_ADMIN_conn->query(
+    'SELECT T_FILETYPE.FTY_N_ID, T_FILETYPE.FTY_CH_LABEL
+     FROM T_FILETYPE
+     WHERE T_FILETYPE.FTY_DT_SUPPRESSION IS NULL
+     ORDER BY T_FILETYPE.FTY_CH_LABEL ASC'
+)->fetchAll();
+
+$oProjectFiles = $WM_ADMIN_conn->prepare(
+    'SELECT
+        T_PROJECTFILE.PRF_N_ID,
+        T_PROJECTFILE.FTY_N_ID,
+        T_PROJECTFILE.PRF_CH_LABEL,
+        T_PROJECTFILE.PRF_CH_FILENAME,
+        T_PROJECTFILE.PRF_CH_MIMETYPE,
+        T_PROJECTFILE.PRF_N_SIZE,
+        T_PROJECTFILE.PRF_N_YEAR,
+        T_PROJECTFILE.PRF_BL_SEARCHIMAGE
+     FROM T_PROJECTFILE
+     WHERE T_PROJECTFILE.PRO_N_ID = :PRO_N_ID
+       AND T_PROJECTFILE.PRF_DT_SUPPRESSION IS NULL
+     ORDER BY T_PROJECTFILE.PRF_N_ORDER ASC, T_PROJECTFILE.PRF_N_ID ASC'
+);
+$oProjectFiles->execute(['PRO_N_ID' => $PRO_N_ID]);
+$aProjectFiles = $oProjectFiles->fetchAll();
+
 require_once __DIR__ . '/../top.php';
 ?>
 
@@ -322,11 +347,77 @@ require_once __DIR__ . '/../top.php';
     </div>
 
     <div class="card">
-        <div class="card-header">Fichiers</div>
-        <div class="card-body text-body-secondary">
-            Bloc fichiers à venir.
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Fichiers</span>
+            <small class="text-body-secondary">Glisser-déposer ou coller une image avec Cmd/Ctrl+V</small>
+        </div>
+        <div class="card-body">
+            <form id="fAddFile" enctype="multipart/form-data" class="mb-3">
+                <div class="row g-2 align-items-stretch">
+                    <div class="col-md-3">
+                        <div class="input-group h-100">
+                            <select class="form-select" name="FTY_N_ID" id="FTY_N_ID_ADD" required>
+                                <option value="">Type</option>
+                                <?php foreach ($aFileTypes as $aFileType): ?>
+                                    <option value="<?php echo (int) $aFileType['FTY_N_ID']; ?>"><?php echo htmlspecialchars($aFileType['FTY_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="btn btn-light" id="bAdminFileTypes" title="Administrer les types de fichier"><i class="fa fa-cog"></i></button>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <input type="file" class="form-control h-100" name="file" id="PRF_FILE" required>
+                    </div>
+                    <div class="col-md-2"><input type="text" class="form-control h-100" name="PRF_CH_LABEL" placeholder="Libellé"></div>
+                    <div class="col-md-2"><input type="number" min="1900" max="2100" class="form-control h-100" name="PRF_N_YEAR" placeholder="Année"></div>
+                    <div class="col-auto"><button type="submit" class="btn btn-success h-100"><i class="fa fa-upload me-2"></i>Ajouter</button></div>
+                </div>
+            </form>
+
+            <div id="dFileDrop" class="border border-light rounded p-3 mb-3 text-center text-body-secondary">
+                Déposer des fichiers ici ou coller une image depuis le presse-papiers
+            </div>
+
+            <?php if (count($aProjectFiles) > 0): ?>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-sm align-middle mb-0">
+                        <tbody>
+                        <?php foreach ($aProjectFiles as $aProjectFile): ?>
+                            <?php $bImage = str_starts_with((string) $aProjectFile['PRF_CH_MIMETYPE'], 'image/'); ?>
+                            <tr data-file-id="<?php echo (int) $aProjectFile['PRF_N_ID']; ?>">
+                                <td class="text-center" style="width:50px"><button type="button" class="btn btn-danger btn-sm js-delete-file"><i class="fa fa-trash"></i></button></td>
+                                <td class="text-center" style="width:110px">
+                                    <?php if ($bImage): ?>
+                                        <a href="/file.php?PRF_N_ID=<?php echo (int) $aProjectFile['PRF_N_ID']; ?>" target="_blank">
+                                            <img src="/file.php?PRF_N_ID=<?php echo (int) $aProjectFile['PRF_N_ID']; ?>&PRO_N_ID=<?php echo $PRO_N_ID; ?>&thumb=1" class="img-fluid rounded" style="max-height:70px" alt="">
+                                        </a>
+                                    <?php else: ?>
+                                        <a class="btn btn-light btn-sm" href="/file.php?PRF_N_ID=<?php echo (int) $aProjectFile['PRF_N_ID']; ?>" target="_blank"><i class="fa fa-file"></i></a>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="width:170px"><select class="form-select form-select-sm js-file-change" data-field="FTY_N_ID"><?php foreach ($aFileTypes as $aFileType): ?><option value="<?php echo (int)$aFileType['FTY_N_ID']; ?>" <?php echo (int)$aProjectFile['FTY_N_ID']===(int)$aFileType['FTY_N_ID']?'selected':''; ?>><?php echo htmlspecialchars($aFileType['FTY_CH_LABEL'],ENT_QUOTES,'UTF-8'); ?></option><?php endforeach; ?></select></td>
+                                <td><input type="text" class="form-control form-control-sm js-file-text" data-field="PRF_CH_LABEL" placeholder="<?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?>" value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_CH_LABEL']??''),ENT_QUOTES,'UTF-8'); ?>"><small class="text-body-secondary"><?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?> · <?php echo number_format(((int)$aProjectFile['PRF_N_SIZE'])/1024,0,',',' '); ?> Ko</small></td>
+                                <td style="width:100px"><input type="number" min="1900" max="2100" class="form-control form-control-sm js-file-change" data-field="PRF_N_YEAR" placeholder="Année" value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_N_YEAR']??''),ENT_QUOTES,'UTF-8'); ?>"></td>
+                                <td class="text-center" style="width:90px">
+                                    <?php if ($bImage): ?>
+                                        <div class="form-check d-inline-block" title="Image du catalogue"><input class="form-check-input js-search-image" type="radio" name="PRF_BL_SEARCHIMAGE" value="<?php echo (int)$aProjectFile['PRF_N_ID']; ?>" <?php echo (int)$aProjectFile['PRF_BL_SEARCHIMAGE']===1?'checked':''; ?>></div>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?><div class="text-body-secondary">Aucun fichier.</div><?php endif; ?>
         </div>
     </div>
+    <div class="modal fade" id="mAdminFileTypes" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content">
+            <div class="modal-header"><h2 class="modal-title fs-5">Administrer les types de fichier</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body p-0"><iframe id="fAdminFileTypes" src="about:blank" style="width:100%;height:60vh;border:0;"></iframe></div>
+        </div></div>
+    </div>
+
     <div class="modal fade" id="mAdminUrlTypes" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content">
             <div class="modal-header"><h2 class="modal-title fs-5">Administrer les types d’URL</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
@@ -649,6 +740,75 @@ $(function () {
             );
         });
     });
+
+    $('#bAdminFileTypes').on('click', function () {
+        $('#fAdminFileTypes').attr('src', '/fileType/index.php');
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('mAdminFileTypes')).show();
+    });
+    document.getElementById('mAdminFileTypes').addEventListener('hidden.bs.modal', function () { window.location.reload(); });
+
+    function uploadFile(oFile, bClipboard) {
+        const nType = $('#FTY_N_ID_ADD').val();
+        if (!nType) {
+            setSaveStatus('Choisir un type de fichier', true);
+            return;
+        }
+        const fd = new FormData();
+        fd.append('PRO_N_ID', $('#PRO_N_ID').val());
+        fd.append('FTY_N_ID', nType);
+        fd.append('file', oFile, oFile.name || 'presse-papiers.png');
+
+        setSaveStatus('Envoi du fichier…', false);
+        $.ajax({
+            url: bClipboard ? '/project/api/trPasteFile.php' : '/project/api/trUploadFile.php',
+            type: 'POST', dataType: 'json', data: fd, processData: false, contentType: false
+        }).done(function (data) {
+            if (data.success === true) { window.location.reload(); return; }
+            setSaveStatus(data.message || 'Erreur', true);
+        }).fail(function (xhr) {
+            setSaveStatus(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Erreur lors de l’envoi', true);
+        });
+    }
+
+    $('#fAddFile').on('submit', function (e) {
+        e.preventDefault();
+        const fd = new FormData(this);
+        fd.append('PRO_N_ID', $('#PRO_N_ID').val());
+        setSaveStatus('Envoi du fichier…', false);
+        $.ajax({url:'/project/api/trUploadFile.php',type:'POST',dataType:'json',data:fd,processData:false,contentType:false})
+        .done(function(data){if(data.success===true){window.location.reload();return;}setSaveStatus(data.message||'Erreur',true);})
+        .fail(function(xhr){setSaveStatus(xhr.responseJSON&&xhr.responseJSON.message?xhr.responseJSON.message:'Erreur lors de l’envoi',true);});
+    });
+
+    $('#dFileDrop').on('dragover', function (e) { e.preventDefault(); $(this).addClass('border-warning'); })
+        .on('dragleave drop', function (e) { e.preventDefault(); $(this).removeClass('border-warning'); })
+        .on('drop', function (e) {
+            const files = e.originalEvent.dataTransfer.files;
+            Array.from(files).forEach(function (file) { uploadFile(file, false); });
+        });
+
+    $(document).on('paste', function (e) {
+        const items = (e.originalEvent.clipboardData || {}).items || [];
+        for (const item of items) {
+            if (item.kind === 'file' && item.type.indexOf('image/') === 0) {
+                uploadFile(item.getAsFile(), true);
+                e.preventDefault();
+                break;
+            }
+        }
+    });
+
+    function saveFile($field) {
+        const $row = $field.closest('[data-file-id]');
+        setFieldState($field, 'warning');
+        $.ajax({url:'/project/api/trUpdFile.php',type:'POST',dataType:'json',data:{PRF_N_ID:$row.data('file-id'),sField:$field.data('field'),sValue:$field.val()}})
+        .done(function(data){if(data.success===true){setFieldState($field,'success');return;}setFieldState($field,'danger');setSaveStatus(data.message||'Erreur',true);})
+        .fail(function(xhr){setFieldState($field,'danger');setSaveStatus(xhr.responseJSON&&xhr.responseJSON.message?xhr.responseJSON.message:'Erreur',true);});
+    }
+    $('.js-file-text').typing({delay:600,start:function(e,x){setFieldState(x,'warning')},stop:function(e,x){saveFile(x)}});
+    $('.js-file-change').on('change',function(){saveFile($(this))});
+    $('.js-delete-file').on('click',function(){const $row=$(this).closest('[data-file-id]');if(!confirm('Supprimer ce fichier du catalogue ?'))return;$.post('/project/api/trDeleteFile.php',{PRF_N_ID:$row.data('file-id')},function(data){if(data.success)$row.remove();},'json');});
+    $('.js-search-image').on('change',function(){const $field=$(this);setFieldState($field,'warning');$.post('/project/api/trSearchImage.php',{PRF_N_ID:$field.val()},function(data){if(data.success)setFieldState($field,'success');else setFieldState($field,'danger');},'json').fail(function(){setFieldState($field,'danger')});});
 
     $('#bDeleteProject').on('click', function () {
         if (!confirm('Supprimer ce projet du catalogue ?')) {
