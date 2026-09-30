@@ -17,14 +17,12 @@ try {
 
     foreach($aLinks as $aLink) {
         $PTA_N_ID=(int)$aLink['PTA_N_ID'];
-        historiseTable('T_PROJECTTAG','PTA',$PTA_N_ID,$WM_ADMIN_conn);
         $WM_ADMIN_conn->exec(
             'UPDATE T_PROJECTTAG SET PTA_DT_SUPPRESSION=NOW(),PTA_CH_SUPPRESSION=' . prepString2Update(sSignature())
             . ' WHERE PTA_N_ID=' . prepNum2Update($PTA_N_ID) . ' AND PTA_DT_SUPPRESSION IS NULL'
         );
     }
 
-    historiseTable('T_TAG','TAG',$TAG_N_ID,$WM_ADMIN_conn);
 
     if ($WM_ADMIN_conn->exec(
         'UPDATE T_TAG SET TAG_DT_SUPPRESSION=NOW(),TAG_CH_SUPPRESSION=' . prepString2Update(sSignature())
