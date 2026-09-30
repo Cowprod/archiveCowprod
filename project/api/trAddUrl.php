@@ -3,8 +3,8 @@ require_once __DIR__ . '/../../secure.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $PRO_N_ID = (int) ($_POST['PRO_N_ID'] ?? 0);
-    $UTY_N_ID = (int) ($_POST['UTY_N_ID'] ?? 0);
+    $PRO_N_ID = decryptId($_POST['PRO_N_ID'] ?? '', $sEncryptKey);
+    $UTY_N_ID = decryptId($_POST['UTY_N_ID'] ?? '', $sEncryptKey);
     $sUrl = trim((string) ($_POST['PRU_CH_URL'] ?? ''));
     $sLabel = trim((string) ($_POST['PRU_CH_LABEL'] ?? ''));
     $sYear = trim((string) ($_POST['PRU_N_YEAR'] ?? ''));
