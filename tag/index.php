@@ -2,9 +2,9 @@
 
 require_once __DIR__ . '/../secure.php';
 
-$aCategories = oRs('', __DIR__ . '/../sql/tag/selectCategories.sql', '', 0, '', $WM_ADMIN_conn);
+$aCategories = oRs('', __DIR__ . '/tagCategory.sql', '', 0, '', $WM_ADMIN_conn);
 
-$aTags = oRs('', __DIR__ . '/../sql/tag/selectTags.sql', '', 0, '', $WM_ADMIN_conn);
+$aTags = oRs('', __DIR__ . '/tag.sql', '', 0, '', $WM_ADMIN_conn);
 
 $aTagsByCategory = [];
 
@@ -207,7 +207,7 @@ $(function () {
         const $card = $field.closest('[data-category-id]');
         setFieldState($field, 'warning');
 
-        ajaxPost('/tag/api/trUpdCategory.php', {
+        ajaxPost('/tag/trUpdTagCategory.php', {
             TCA_N_ID: $card.data('category-id'),
             sField: $field.data('field'),
             sValue: $field.val()
@@ -222,7 +222,7 @@ $(function () {
         const $row = $field.closest('[data-tag-id]');
         setFieldState($field, 'warning');
 
-        ajaxPost('/tag/api/trUpdTag.php', {
+        ajaxPost('/tag/trUpdTag.php', {
             TAG_N_ID: $row.data('tag-id'),
             sField: $field.data('field'),
             sValue: $field.val()
@@ -298,7 +298,7 @@ $(function () {
             return;
         }
 
-        ajaxPost('/tag/api/trDeleteCategory.php', {
+        ajaxPost('/tag/trSupTagCategory.php', {
             TCA_N_ID: $card.data('category-id')
         }, function () {
             $card.remove();
