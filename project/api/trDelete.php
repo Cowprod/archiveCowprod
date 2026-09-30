@@ -7,7 +7,6 @@ try {
     $PRO_N_ID = decryptId($_POST['PRO_N_ID'] ?? '', $sEncryptKey);
 
     $WM_ADMIN_conn->beginTransaction();
-    historiseTable('T_PROJECT', 'PRO', $PRO_N_ID, $WM_ADMIN_conn);
 
     $sSql = 'UPDATE T_PROJECT
         SET PRO_DT_SUPPRESSION=NOW(),
