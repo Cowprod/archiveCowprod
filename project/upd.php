@@ -192,14 +192,21 @@ require_once __DIR__ . '/../top.php';
             <form id="fAddUrl" class="mb-3">
                 <div class="row g-2">
                     <div class="col-md-3">
-                        <div class="input-group"><select class="form-select" name="UTY_N_ID" required>
-                            <option value="">Type</option>
-                            <?php foreach ($aUrlTypes as $aUrlType): ?>
-                                <option value="<?php echo htmlspecialchars(encrypt((string) $aUrlType['UTY_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
-                                    <?php echo htmlspecialchars($aUrlType['UTY_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="input-group"><?php echo htmlSelectNameChange(
+                                'T_URLTYPE',
+                                'UTY_N_ID',
+                                'UTY_CH_LABEL',
+                                '',
+                                'UTY_CH_LABEL',
+                                'UTY_DT_SUPPRESSION IS NULL',
+                                $WM_ADMIN_conn,
+                                'UTY_N_ID',
+                                '',
+                                '',
+                                $sEncryptKey,
+                                'form-select',
+                                'required'
+                            ); ?>
                             <button type="button" class="btn btn-light" id="bAdminUrlTypes" title="Administrer les types d’URL"><i class="fa fa-cog"></i></button>
                         </div>
                     </div>
@@ -232,16 +239,21 @@ require_once __DIR__ . '/../top.php';
                                     </button>
                                 </td>
                                 <td style="width:180px;">
-                                    <select class="form-select form-select-sm js-url-change" data-field="UTY_N_ID">
-                                        <?php foreach ($aUrlTypes as $aUrlType): ?>
-                                            <option
-                                                value="<?php echo htmlspecialchars(encrypt((string) $aUrlType['UTY_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>"
-                                                <?php echo (int) $aProjectUrl['UTY_N_ID'] === (int) $aUrlType['UTY_N_ID'] ? 'selected' : ''; ?>
-                                            >
-                                                <?php echo htmlspecialchars($aUrlType['UTY_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                    <?php echo htmlSelectNameChange(
+                                        'T_URLTYPE',
+                                        'UTY_N_ID',
+                                        'UTY_CH_LABEL',
+                                        (int) $aProjectUrl['UTY_N_ID'],
+                                        'UTY_CH_LABEL',
+                                        'UTY_DT_SUPPRESSION IS NULL',
+                                        $WM_ADMIN_conn,
+                                        'UTY_N_ID_' . (int) $aProjectUrl['PRU_N_ID'],
+                                        '',
+                                        '',
+                                        $sEncryptKey,
+                                        'form-select form-select-sm js-url-change',
+                                        'data-field="UTY_N_ID"'
+                                    ); ?>
                                 </td>
                                 <td>
                                     <input
@@ -302,12 +314,21 @@ require_once __DIR__ . '/../top.php';
                 <div class="row g-2 align-items-stretch">
                     <div class="col-md-3">
                         <div class="input-group h-100">
-                            <select class="form-select" name="FTY_N_ID" id="FTY_N_ID_ADD" required>
-                                <option value="">Type</option>
-                                <?php foreach ($aFileTypes as $aFileType): ?>
-                                    <option value="<?php echo htmlspecialchars(encrypt((string) $aFileType['FTY_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($aFileType['FTY_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                            <?php echo htmlSelectNameChange(
+                                'T_FILETYPE',
+                                'FTY_N_ID',
+                                'FTY_CH_LABEL',
+                                '',
+                                'FTY_CH_LABEL',
+                                'FTY_DT_SUPPRESSION IS NULL',
+                                $WM_ADMIN_conn,
+                                'FTY_N_ID',
+                                '',
+                                '',
+                                $sEncryptKey,
+                                'form-select',
+                                'required'
+                            ); ?>
                             <button type="button" class="btn btn-light" id="bAdminFileTypes" title="Administrer les types de fichier"><i class="fa fa-cog"></i></button>
                         </div>
                     </div>
@@ -345,7 +366,21 @@ require_once __DIR__ . '/../top.php';
                                         <a class="btn btn-light btn-sm" href="/file.php?PRF_N_ID=<?php echo urlencode(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey)); ?>" target="_blank"><i class="fa fa-file"></i></a>
                                     <?php endif; ?>
                                 </td>
-                                <td style="width:170px"><select class="form-select form-select-sm js-file-change" data-field="FTY_N_ID"><?php foreach ($aFileTypes as $aFileType): ?><option value="<?php echo htmlspecialchars(encrypt((string) $aFileType['FTY_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>" <?php echo (int)$aProjectFile['FTY_N_ID']===(int)$aFileType['FTY_N_ID']?'selected':''; ?>><?php echo htmlspecialchars($aFileType['FTY_CH_LABEL'],ENT_QUOTES,'UTF-8'); ?></option><?php endforeach; ?></select></td>
+                                <td style="width:170px"><?php echo htmlSelectNameChange(
+                                    'T_FILETYPE',
+                                    'FTY_N_ID',
+                                    'FTY_CH_LABEL',
+                                    (int) $aProjectFile['FTY_N_ID'],
+                                    'FTY_CH_LABEL',
+                                    'FTY_DT_SUPPRESSION IS NULL',
+                                    $WM_ADMIN_conn,
+                                    'FTY_N_ID_' . (int) $aProjectFile['PRF_N_ID'],
+                                    '',
+                                    '',
+                                    $sEncryptKey,
+                                    'form-select form-select-sm js-file-change',
+                                    'data-field="FTY_N_ID"'
+                                ); ?></td>
                                 <td><input type="text" class="form-control form-control-sm js-file-text" data-field="PRF_CH_LABEL" placeholder="<?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?>" value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_CH_LABEL']??''),ENT_QUOTES,'UTF-8'); ?>"><small class="text-body-secondary"><?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?> · <?php echo number_format(((int)$aProjectFile['PRF_N_SIZE'])/1024,0,',',' '); ?> Ko</small></td>
                                 <td style="width:100px"><input type="number" min="1900" max="2100" class="form-control form-control-sm js-file-change" data-field="PRF_N_YEAR" placeholder="Année" value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_N_YEAR']??''),ENT_QUOTES,'UTF-8'); ?>"></td>
                                 <td class="text-center" style="width:90px">
