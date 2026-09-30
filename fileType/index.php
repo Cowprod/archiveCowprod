@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__.'/../secure.php';
-$a=oRs('',__DIR__.'/../sql/fileType/selectAll.sql','',0,'',$WM_ADMIN_conn);
+$a=oRs('',__DIR__.'/fileType.sql','',0,'',$WM_ADMIN_conn);
 ?><!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet">
 <style>.autosave-warning{border-color:var(--bs-warning)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-warning-rgb),.25)!important}.autosave-success{border-color:var(--bs-success)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-success-rgb),.25)!important}.autosave-danger{border-color:var(--bs-danger)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-danger-rgb),.25)!important}</style></head><body>
@@ -10,6 +10,6 @@ $a=oRs('',__DIR__.'/../sql/fileType/selectAll.sql','',0,'',$WM_ADMIN_conn);
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script src="/assets/js/jquery.typing-0.2.0.js"></script><script>
 $(function(){function state(x,s){clearTimeout(x.data('t'));x.removeClass('autosave-warning autosave-success autosave-danger');if(s==='warning')x.addClass('autosave-warning');if(s==='success'){x.addClass('autosave-success');x.data('t',setTimeout(function(){x.removeClass('autosave-success')},1500));}if(s==='danger')x.addClass('autosave-danger');}
 function post(u,d,ok,ko){$.ajax({url:u,type:'POST',dataType:'json',data:d}).done(function(r){if(r.success){if(ok)ok();}else{if(ko)ko();$('#msg').removeClass('d-none').text(r.message||'Erreur')}}).fail(function(x){if(ko)ko();$('#msg').removeClass('d-none').text(x.responseJSON&&x.responseJSON.message?x.responseJSON.message:'Erreur')})}
-$('#add').on('submit',function(e){e.preventDefault();post('/fileType/api/trAdd.php',$(this).serialize(),function(){location.reload()})});
-$('.label').typing({delay:500,start:function(e,x){state(x,'warning')},stop:function(e,x){post('/fileType/api/trUpd.php',{FTY_N_ID:x.closest('tr').data('id'),FTY_CH_LABEL:x.val()},function(){state(x,'success')},function(){state(x,'danger')})}});
-$('.del').on('click',function(){let r=$(this).closest('tr');if(confirm('Supprimer ce type de fichier ?'))post('/fileType/api/trDelete.php',{FTY_N_ID:r.data('id')},function(){r.remove()})});});</script></body></html>
+$('#add').on('submit',function(e){e.preventDefault();post('/fileType/trUpdFileType.php',$(this).serialize(),function(){location.reload()})});
+$('.label').typing({delay:500,start:function(e,x){state(x,'warning')},stop:function(e,x){post('/fileType/trUpdFileType.php',{FTY_N_ID:x.closest('tr').data('id'),FTY_CH_LABEL:x.val()},function(){state(x,'success')},function(){state(x,'danger')})}});
+$('.del').on('click',function(){let r=$(this).closest('tr');if(confirm('Supprimer ce type de fichier ?'))post('/fileType/trSupFileType.php',{FTY_N_ID:r.data('id')},function(){r.remove()})});});</script></body></html>
