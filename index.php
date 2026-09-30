@@ -26,19 +26,14 @@ if ($sYear !== '') {
     }
 }
 
-$sSql = 'SELECT
-            T_PROJECT.PRO_N_ID,
-            T_PROJECT.PRO_CH_LABEL,
-            T_PROJECT.PRO_TX_DESCRIPTION,
-            T_PROJECT.PRO_N_YEARSTART,
-            T_PROJECT.PRO_N_YEAREND
-         FROM T_PROJECT
-         WHERE T_PROJECT.PRO_DT_SUPPRESSION IS NULL';
+$sSearchFilter = '';
+$sYearFilter = '';
+$sTagFilter = '';
 
 if ($sSearch !== '') {
     $sLike = prepString2Update('%' . $sSearch . '%');
 
-    $sSql .= ' AND (
+    $sSearchFilter = 'AND (
         T_PROJECT.PRO_CH_LABEL LIKE ' . $sLike . '
         OR T_PROJECT.PRO_TX_DESCRIPTION LIKE ' . $sLike . '
         OR EXISTS (
@@ -75,7 +70,7 @@ if ($sSearch !== '') {
 }
 
 if ($nSearchYear !== null) {
-    $sSql .= ' AND (
+    $sYearFilter = 'AND (
         (T_PROJECT.PRO_N_YEARSTART IS NULL OR T_PROJECT.PRO_N_YEARSTART <= ' . prepNum2Update($nSearchYear) . ')
         AND (T_PROJECT.PRO_N_YEAREND IS NULL OR T_PROJECT.PRO_N_YEAREND >= ' . prepNum2Update($nSearchYear) . ')
         AND (T_PROJECT.PRO_N_YEARSTART IS NOT NULL OR T_PROJECT.PRO_N_YEAREND IS NOT NULL)
@@ -85,7 +80,7 @@ if ($nSearchYear !== null) {
 if (count($aSearchTagIds) > 0) {
     $aPreparedTagIds = array_map('prepNum2Update', $aSearchTagIds);
 
-    $sSql .= ' AND (
+    $sTagFilter = 'AND (
         SELECT COUNT(DISTINCT T_PROJECTTAG.TAG_N_ID)
         FROM T_PROJECTTAG
         WHERE T_PROJECTTAG.PRO_N_ID = T_PROJECT.PRO_N_ID
@@ -94,9 +89,16 @@ if (count($aSearchTagIds) > 0) {
     ) = ' . prepNum2Update(count($aSearchTagIds));
 }
 
-$sSql .= ' ORDER BY T_PROJECT.PRO_N_YEARSTART DESC, T_PROJECT.PRO_CH_LABEL ASC';
-
-$aProjects = oRs($sSql, '', '', 0, '', $WM_ADMIN_conn);
+$aProjects = oRs(
+    '',
+    __DIR__ . '/sql/catalogue/selectProjects.sql',
+    'SEARCH_FILTER=' . urlencode($sSearchFilter)
+        . '&YEAR_FILTER=' . urlencode($sYearFilter)
+        . '&TAG_FILTER=' . urlencode($sTagFilter),
+    0,
+    '',
+    $WM_ADMIN_conn
+);
 
 $aProjectTags = oRs('', __DIR__ . '/sql/catalogue/selectProjectTags.sql', '', 0, '', $WM_ADMIN_conn);
 
