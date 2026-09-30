@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/secure.php';
 $id=decryptId($_GET['PRF_N_ID'] ?? '', $sEncryptKey);$thumb=isset($_GET['thumb'])&&$_GET['thumb']==='1';
-$aFiles=oRs('',__DIR__.'/sql/file/selectFile.sql','PRF_N_ID='.urlencode(prepNum2Update($id)),0,'',$WM_ADMIN_conn);$r=$aFiles[0]??false;if(!$r||!is_file($r['PRF_CH_PATH'])){http_response_code(404);exit('Fichier introuvable');}
+$aFiles=oRs('',__DIR__.'/projectFile/projectFileDownload.sql','PRF_N_ID='.prepNum2Update($id),0,'',$WM_ADMIN_conn);$r=$aFiles[0]??false;if(!$r||!is_file($r['PRF_CH_PATH'])){http_response_code(404);exit('Fichier introuvable');}
 $path=$r['PRF_CH_PATH'];$mime=$r['PRF_CH_MIMETYPE'];
 if($thumb&&archiveIsImageMime($mime)){
   $cache=archiveProjectCacheDir((int)$r['PRO_N_ID']).'/'.$id.'_320.jpg';
