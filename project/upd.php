@@ -85,27 +85,18 @@ require_once __DIR__ . '/../top.php';
 
 <main class="container py-4">
     <div class="d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <a href="/index.php" class="text-decoration-none">
-                <i class="fa fa-arrow-left me-2"></i>Catalogue
-            </a>
-            <h1 class="h3 mt-2 mb-0"><?php echo htmlspecialchars($aProject['PRO_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?></h1>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-            <span id="dSaveStatus" class="text-body-secondary"></span>
-            <button type="button" class="btn btn-danger btn-sm" id="bDeleteProject">
-                <i class="fa fa-trash me-2"></i>Supprimer
-            </button>
-        </div>
+        <h1 class="h3 mb-0"><?php echo htmlspecialchars($aProject['PRO_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?></h1>
+        <span id="dSaveStatus" class="text-body-secondary"></span>
     </div>
 
     <input type="hidden" id="PRO_N_ID" value="<?php echo htmlspecialchars(encrypt((string) $aProject['PRO_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
 
     <div class="card mb-4">
         <div class="card-header">Projet</div>
+
         <div class="card-body">
-            <div class="mb-3">
-                <label for="PRO_CH_LABEL" class="form-label">Nom</label>
+            <div class="input-group mb-3">
+                <span class="input-group-text">Nom</span>
                 <input
                     type="text"
                     class="form-control js-autosave-text"
@@ -115,42 +106,49 @@ require_once __DIR__ . '/../top.php';
                 >
             </div>
 
-            <div class="row g-3 mb-3">
-                <div class="col-sm-6 col-lg-3">
-                    <label for="PRO_N_YEARSTART" class="form-label">Année de début</label>
-                    <input
-                        type="number"
-                        min="1900"
-                        max="2100"
-                        class="form-control js-autosave-change"
-                        id="PRO_N_YEARSTART"
-                        data-field="PRO_N_YEARSTART"
-                        value="<?php echo htmlspecialchars((string) ($aProject['PRO_N_YEARSTART'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
-                    >
-                </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text">Début</span>
+                <input
+                    type="number"
+                    min="1900"
+                    max="2100"
+                    class="form-control js-autosave-change"
+                    id="PRO_N_YEARSTART"
+                    data-field="PRO_N_YEARSTART"
+                    value="<?php echo htmlspecialchars((string) ($aProject['PRO_N_YEARSTART'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                >
 
-                <div class="col-sm-6 col-lg-3">
-                    <label for="PRO_N_YEAREND" class="form-label">Année de fin</label>
-                    <input
-                        type="number"
-                        min="1900"
-                        max="2100"
-                        class="form-control js-autosave-change"
-                        id="PRO_N_YEAREND"
-                        data-field="PRO_N_YEAREND"
-                        value="<?php echo htmlspecialchars((string) ($aProject['PRO_N_YEAREND'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
-                    >
-                </div>
+                <span class="input-group-text">Fin</span>
+                <input
+                    type="number"
+                    min="1900"
+                    max="2100"
+                    class="form-control js-autosave-change"
+                    id="PRO_N_YEAREND"
+                    data-field="PRO_N_YEAREND"
+                    value="<?php echo htmlspecialchars((string) ($aProject['PRO_N_YEAREND'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                >
             </div>
 
-            <div>
-                <label for="PRO_CH_DESCRIPTION" class="form-label">Description</label>
+            <div class="input-group">
+                <span class="input-group-text align-items-start">Description</span>
                 <textarea
                     class="form-control js-autosave-text"
                     id="PRO_CH_DESCRIPTION"
                     data-field="PRO_CH_DESCRIPTION"
                     rows="8"
                 ><?php echo htmlspecialchars((string) ($aProject['PRO_CH_DESCRIPTION'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
+            </div>
+        </div>
+
+        <div class="card-footer text-center">
+            <div class="btn-group">
+                <a href="/index.php" class="btn btn-secondary">
+                    <i class="fa fa-arrow-left me-2"></i>Retour
+                </a>
+                <button type="button" class="btn btn-danger" id="bDeleteProject">
+                    <i class="fa fa-trash me-2"></i>Supprimer
+                </button>
             </div>
         </div>
     </div>
