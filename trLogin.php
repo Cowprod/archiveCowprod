@@ -13,7 +13,7 @@ if ($sUser === '' || $sPassword === '') {
 
 $aUsers = oRs(
     '',
-    __DIR__ . '/sql/auth/selectUser.sql',
+    __DIR__ . '/login.sql',
     'USR_CH_LOGIN=' . urlencode(prepString2Update($sUser)),
     0,
     '',
