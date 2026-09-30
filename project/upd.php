@@ -190,22 +190,13 @@ require_once __DIR__ . '/../top.php';
             <form id="fAddUrl" class="mb-3">
                 <div class="row g-2">
                     <div class="col-md-3">
-                        <div class="input-group"><?php echo htmlSelectNameChange(
-                                'T_URLTYPE',
-                                'UTY_N_ID',
-                                'UTY_CH_LABEL',
-                                '',
-                                'UTY_CH_LABEL',
-                                'UTY_DT_SUPPRESSION IS NULL',
-                                $WM_ADMIN_conn,
-                                'UTY_N_ID',
-                                '',
-                                '',
-                                $sEncryptKey,
-                                'form-select',
-                                'required'
-                            ); ?>
-                            <button type="button" class="btn btn-light" id="bAdminUrlTypes" title="Administrer les types d’URL"><i class="fa fa-cog"></i></button>
+                        <div class="input-group h-100">
+                            <span class="input-group-text w-25">Type</span>
+                            <div
+                                id="dSelUrlTypeAdd"
+                                class="input-group-text p-0 flex-grow-1"
+                                data-sel-url="/urlType/sel.php?sId=UTY_N_ID&amp;updateDiv=dSelUrlTypeAdd&amp;required=1"
+                            ></div>
                         </div>
                     </div>
                     <div class="col-md">
@@ -228,7 +219,7 @@ require_once __DIR__ . '/../top.php';
             <?php if (count($aProjectUrls) > 0): ?>
                 <table class="table table-bordered table-striped table-sm align-middle mb-0" id="tUrlTable">
                     <tbody id="tUrlBody">
-                        <?php foreach ($aProjectUrls as $aProjectUrl): ?>
+                        <?php foreach ($aProjectUrls as $nUrlIndex => $aProjectUrl): ?>
                             <tr data-url-id="<?php echo htmlspecialchars(encrypt((string) $aProjectUrl['PRU_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
                                 <td class="text-center js-drag-url" style="width:38px;cursor:move;" title="Déplacer"><i class="fa fa-grip-vertical text-body-secondary"></i></td>
                                 <td class="text-center" style="width:50px;">
@@ -237,21 +228,22 @@ require_once __DIR__ . '/../top.php';
                                     </button>
                                 </td>
                                 <td style="width:180px;">
-                                    <?php echo htmlSelectNameChange(
-                                        'T_URLTYPE',
-                                        'UTY_N_ID',
-                                        'UTY_CH_LABEL',
-                                        (int) $aProjectUrl['UTY_N_ID'],
-                                        'UTY_CH_LABEL',
-                                        'UTY_DT_SUPPRESSION IS NULL',
-                                        $WM_ADMIN_conn,
-                                        'UTY_N_ID_' . (int) $aProjectUrl['PRU_N_ID'],
-                                        '',
-                                        '',
-                                        $sEncryptKey,
-                                        'form-select form-select-sm js-url-change',
-                                        'data-field="UTY_N_ID"'
-                                    ); ?>
+                                    <?php
+                                    $sUrlTypeHostId = 'dSelUrlTypeRow' . $nUrlIndex;
+                                    $sUrlTypeSelUrl = '/urlType/sel.php?' . http_build_query([
+                                        'UTY_N_ID' => encrypt((string) $aProjectUrl['UTY_N_ID'], $sEncryptKey),
+                                        'sId' => 'UTY_N_ID_ROW_' . $nUrlIndex,
+                                        'updateDiv' => $sUrlTypeHostId,
+                                        'small' => '1',
+                                        'field' => 'UTY_N_ID',
+                                        'noAdmin' => '1',
+                                    ]);
+                                    ?>
+                                    <div
+                                        id="<?php echo $sUrlTypeHostId; ?>"
+                                        class="input-group-text p-0 w-100"
+                                        data-sel-url="<?php echo htmlspecialchars($sUrlTypeSelUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                    ></div>
                                 </td>
                                 <td>
                                     <input
@@ -312,22 +304,12 @@ require_once __DIR__ . '/../top.php';
                 <div class="row g-2 align-items-stretch">
                     <div class="col-md-3">
                         <div class="input-group h-100">
-                            <?php echo htmlSelectNameChange(
-                                'T_FILETYPE',
-                                'FTY_N_ID',
-                                'FTY_CH_LABEL',
-                                '',
-                                'FTY_CH_LABEL',
-                                'FTY_DT_SUPPRESSION IS NULL',
-                                $WM_ADMIN_conn,
-                                'FTY_N_ID',
-                                '',
-                                '',
-                                $sEncryptKey,
-                                'form-select',
-                                'required'
-                            ); ?>
-                            <button type="button" class="btn btn-light" id="bAdminFileTypes" title="Administrer les types de fichier"><i class="fa fa-cog"></i></button>
+                            <span class="input-group-text w-25">Type</span>
+                            <div
+                                id="dSelFileTypeAdd"
+                                class="input-group-text p-0 flex-grow-1"
+                                data-sel-url="/fileType/sel.php?sId=FTY_N_ID&amp;updateDiv=dSelFileTypeAdd&amp;required=1"
+                            ></div>
                         </div>
                     </div>
                     <div class="col-md">
@@ -350,7 +332,7 @@ require_once __DIR__ . '/../top.php';
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-sm align-middle mb-0" id="tFileTable">
                         <tbody id="tFileBody">
-                        <?php foreach ($aProjectFiles as $aProjectFile): ?>
+                        <?php foreach ($aProjectFiles as $nFileIndex => $aProjectFile): ?>
                             <?php $bImage = str_starts_with((string) $aProjectFile['PRF_CH_MIMETYPE'], 'image/'); ?>
                             <tr data-file-id="<?php echo htmlspecialchars(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
                                 <td class="text-center js-drag-file" style="width:38px;cursor:move;" title="Déplacer"><i class="fa fa-grip-vertical text-body-secondary"></i></td>
@@ -364,21 +346,24 @@ require_once __DIR__ . '/../top.php';
                                         <a class="btn btn-light btn-sm" href="/file.php?PRF_N_ID=<?php echo urlencode(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey)); ?>" target="_blank"><i class="fa fa-file"></i></a>
                                     <?php endif; ?>
                                 </td>
-                                <td style="width:170px"><?php echo htmlSelectNameChange(
-                                    'T_FILETYPE',
-                                    'FTY_N_ID',
-                                    'FTY_CH_LABEL',
-                                    (int) $aProjectFile['FTY_N_ID'],
-                                    'FTY_CH_LABEL',
-                                    'FTY_DT_SUPPRESSION IS NULL',
-                                    $WM_ADMIN_conn,
-                                    'FTY_N_ID_' . (int) $aProjectFile['PRF_N_ID'],
-                                    '',
-                                    '',
-                                    $sEncryptKey,
-                                    'form-select form-select-sm js-file-change',
-                                    'data-field="FTY_N_ID"'
-                                ); ?></td>
+                                <td style="width:170px">
+                                    <?php
+                                    $sFileTypeHostId = 'dSelFileTypeRow' . $nFileIndex;
+                                    $sFileTypeSelUrl = '/fileType/sel.php?' . http_build_query([
+                                        'FTY_N_ID' => encrypt((string) $aProjectFile['FTY_N_ID'], $sEncryptKey),
+                                        'sId' => 'FTY_N_ID_ROW_' . $nFileIndex,
+                                        'updateDiv' => $sFileTypeHostId,
+                                        'small' => '1',
+                                        'field' => 'FTY_N_ID',
+                                        'noAdmin' => '1',
+                                    ]);
+                                    ?>
+                                    <div
+                                        id="<?php echo $sFileTypeHostId; ?>"
+                                        class="input-group-text p-0 w-100"
+                                        data-sel-url="<?php echo htmlspecialchars($sFileTypeSelUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                    ></div>
+                                </td>
                                 <td><input type="text" class="form-control form-control-sm js-file-text" data-field="PRF_CH_LABEL" placeholder="<?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?>" value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_CH_LABEL']??''),ENT_QUOTES,'UTF-8'); ?>"><small class="text-body-secondary"><?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?> · <?php echo number_format(((int)$aProjectFile['PRF_N_SIZE'])/1024,0,',',' '); ?> Ko</small></td>
                                 <td style="width:100px"><input type="number" min="1900" max="2100" class="form-control form-control-sm js-file-change" data-field="PRF_N_YEAR" placeholder="Année" value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_N_YEAR']??''),ENT_QUOTES,'UTF-8'); ?>"></td>
                                 <td class="text-center" style="width:90px">
