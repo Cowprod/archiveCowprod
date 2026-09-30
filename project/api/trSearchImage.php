@@ -5,12 +5,14 @@ header('Content-Type: application/json; charset=utf-8');
 try {
     $PRF_N_ID = decryptId($_POST['PRF_N_ID'] ?? '', $sEncryptKey);
 
-    $aFiles = $WM_ADMIN_conn->query(
-        'SELECT PRO_N_ID,PRF_CH_MIMETYPE
-         FROM T_PROJECTFILE
-         WHERE PRF_N_ID=' . prepNum2Update($PRF_N_ID) . '
-           AND PRF_DT_SUPPRESSION IS NULL'
-    )->fetchAll();
+    $aFiles = oRs(
+        '',
+        __DIR__ . '/../../sql/project/selectSearchImage.sql',
+        'PRF_N_ID=' . urlencode(prepNum2Update($PRF_N_ID)),
+        0,
+        '',
+        $WM_ADMIN_conn
+    );;
 
     $aFile = $aFiles[0] ?? false;
 
@@ -22,14 +24,14 @@ try {
 
     $WM_ADMIN_conn->beginTransaction();
 
-    $aImages = $WM_ADMIN_conn->query(
-        'SELECT PRF_N_ID,PRF_BL_SEARCHIMAGE
-         FROM T_PROJECTFILE
-         WHERE PRO_N_ID=' . prepNum2Update($PRO_N_ID) . '
-           AND PRF_DT_SUPPRESSION IS NULL
-           AND PRF_CH_MIMETYPE LIKE ' . prepString2Update('image/%') . '
-         FOR UPDATE'
-    )->fetchAll();
+    $aImages = oRs(
+        '',
+        __DIR__ . '/../../sql/project/selectProjectImages.sql',
+        'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+        0,
+        '',
+        $WM_ADMIN_conn
+    );;
 
     foreach ($aImages as $aImage) {
         $nFileId = (int) $aImage['PRF_N_ID'];
