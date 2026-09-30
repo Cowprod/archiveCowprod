@@ -14,51 +14,26 @@ if ($PRO_N_ID <= 0) {
     exit('Projet invalide');
 }
 
-$oProject = $WM_ADMIN_conn->prepare(
-    'SELECT
-        T_PROJECT.PRO_N_ID,
-        T_PROJECT.PRO_CH_LABEL,
-        T_PROJECT.PRO_TX_DESCRIPTION,
-        T_PROJECT.PRO_N_YEARSTART,
-        T_PROJECT.PRO_N_YEAREND
-     FROM T_PROJECT
-     WHERE T_PROJECT.PRO_N_ID = :PRO_N_ID
-       AND T_PROJECT.PRO_DT_SUPPRESSION IS NULL'
+$aProjects = oRs(
+    '',
+    __DIR__ . '/../sql/project/selectProject.sql',
+    'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+    0,
+    '',
+    $WM_ADMIN_conn
 );
-
-$oProject->execute([
-    'PRO_N_ID' => $PRO_N_ID,
-]);
-
-$aProject = $oProject->fetch();
+$aProject = $aProjects[0] ?? false;
 
 if (!$aProject) {
     http_response_code(404);
     exit('Projet introuvable');
 }
 
-$oTags = $WM_ADMIN_conn->query(
-    'SELECT
-        T_TAGCATEGORY.TCA_N_ID,
-        T_TAGCATEGORY.TCA_CH_LABEL,
-        T_TAGCATEGORY.TCA_CH_COLOR,
-        T_TAG.TAG_N_ID,
-        T_TAG.TAG_CH_LABEL
-     FROM T_TAGCATEGORY
-     INNER JOIN T_TAG
-        ON T_TAG.TCA_N_ID = T_TAGCATEGORY.TCA_N_ID
-       AND T_TAG.TAG_DT_SUPPRESSION IS NULL
-     WHERE T_TAGCATEGORY.TCA_DT_SUPPRESSION IS NULL
-     ORDER BY
-        T_TAGCATEGORY.TCA_N_ORDER ASC,
-        T_TAGCATEGORY.TCA_CH_LABEL ASC,
-        T_TAG.TAG_N_ORDER ASC,
-        T_TAG.TAG_CH_LABEL ASC'
-);
+$aTags = oRs('', __DIR__ . '/../sql/project/selectTags.sql', '', 0, '', $WM_ADMIN_conn);
 
 $aTagsByCategory = [];
 
-foreach ($oTags->fetchAll() as $aTag) {
+foreach ($aTags as $aTag) {
     $nCategoryId = (int) $aTag['TCA_N_ID'];
 
     if (!isset($aTagsByCategory[$nCategoryId])) {
@@ -72,73 +47,38 @@ foreach ($oTags->fetchAll() as $aTag) {
     $aTagsByCategory[$nCategoryId]['tags'][] = $aTag;
 }
 
-$oProjectTags = $WM_ADMIN_conn->prepare(
-    'SELECT T_PROJECTTAG.TAG_N_ID
-     FROM T_PROJECTTAG
-     WHERE T_PROJECTTAG.PRO_N_ID = :PRO_N_ID
-       AND T_PROJECTTAG.PTA_DT_SUPPRESSION IS NULL'
+$aProjectTags = oRs(
+    '',
+    __DIR__ . '/../sql/project/selectProjectTags.sql',
+    'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+    0,
+    '',
+    $WM_ADMIN_conn
 );
 
-$oProjectTags->execute([
-    'PRO_N_ID' => $PRO_N_ID,
-]);
+$aSelectedTagIds = array_map('intval', array_column($aProjectTags, 'TAG_N_ID'));
 
-$aSelectedTagIds = array_map(
-    'intval',
-    array_column($oProjectTags->fetchAll(), 'TAG_N_ID')
+
+
+$aProjectUrls = oRs(
+    '',
+    __DIR__ . '/../sql/project/selectProjectUrls.sql',
+    'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+    0,
+    '',
+    $WM_ADMIN_conn
 );
 
-$oUrlTypes = $WM_ADMIN_conn->query(
-    'SELECT
-        T_URLTYPE.UTY_N_ID,
-        T_URLTYPE.UTY_CH_LABEL
-     FROM T_URLTYPE
-     WHERE T_URLTYPE.UTY_DT_SUPPRESSION IS NULL
-     ORDER BY T_URLTYPE.UTY_CH_LABEL ASC'
-);
-$aUrlTypes = $oUrlTypes->fetchAll();
 
-$oProjectUrls = $WM_ADMIN_conn->prepare(
-    'SELECT
-        T_PROJECTURL.PRU_N_ID,
-        T_PROJECTURL.UTY_N_ID,
-        T_PROJECTURL.PRU_CH_URL,
-        T_PROJECTURL.PRU_CH_LABEL,
-        T_PROJECTURL.PRU_N_YEAR
-     FROM T_PROJECTURL
-     WHERE T_PROJECTURL.PRO_N_ID = :PRO_N_ID
-       AND T_PROJECTURL.PRU_DT_SUPPRESSION IS NULL
-     ORDER BY
-        T_PROJECTURL.PRU_N_ORDER ASC,
-        T_PROJECTURL.PRU_N_ID ASC'
-);
-$oProjectUrls->execute(['PRO_N_ID' => $PRO_N_ID]);
-$aProjectUrls = $oProjectUrls->fetchAll();
 
-$aFileTypes = $WM_ADMIN_conn->query(
-    'SELECT T_FILETYPE.FTY_N_ID, T_FILETYPE.FTY_CH_LABEL
-     FROM T_FILETYPE
-     WHERE T_FILETYPE.FTY_DT_SUPPRESSION IS NULL
-     ORDER BY T_FILETYPE.FTY_CH_LABEL ASC'
-)->fetchAll();
-
-$oProjectFiles = $WM_ADMIN_conn->prepare(
-    'SELECT
-        T_PROJECTFILE.PRF_N_ID,
-        T_PROJECTFILE.FTY_N_ID,
-        T_PROJECTFILE.PRF_CH_LABEL,
-        T_PROJECTFILE.PRF_CH_FILENAME,
-        T_PROJECTFILE.PRF_CH_MIMETYPE,
-        T_PROJECTFILE.PRF_N_SIZE,
-        T_PROJECTFILE.PRF_N_YEAR,
-        T_PROJECTFILE.PRF_BL_SEARCHIMAGE
-     FROM T_PROJECTFILE
-     WHERE T_PROJECTFILE.PRO_N_ID = :PRO_N_ID
-       AND T_PROJECTFILE.PRF_DT_SUPPRESSION IS NULL
-     ORDER BY T_PROJECTFILE.PRF_N_ORDER ASC, T_PROJECTFILE.PRF_N_ID ASC'
+$aProjectFiles = oRs(
+    '',
+    __DIR__ . '/../sql/project/selectProjectFiles.sql',
+    'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+    0,
+    '',
+    $WM_ADMIN_conn
 );
-$oProjectFiles->execute(['PRO_N_ID' => $PRO_N_ID]);
-$aProjectFiles = $oProjectFiles->fetchAll();
 
 require_once __DIR__ . '/../top.php';
 ?>
