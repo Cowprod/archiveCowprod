@@ -429,7 +429,7 @@ require_once __DIR__ . '/top.php';
                                 class="card-img-top"
                                 alt=""
                                 loading="lazy"
-                                style="height:180px;object-fit:cover;"
+                                style="height:180px;object-fit:cover;object-position:center top;"
                             >
                         <?php endif; ?>
 
