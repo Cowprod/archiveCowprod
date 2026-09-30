@@ -3,14 +3,17 @@ require_once __DIR__ . '/../../secure.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $PRO_N_ID = (int) ($_POST['PRO_N_ID'] ?? 0);
+    $PRO_N_ID = decryptId($_POST['PRO_N_ID'] ?? '', $sEncryptKey);
     $aIds = $_POST['PRF_N_ID'] ?? [];
 
     if ($PRO_N_ID <= 0 || !is_array($aIds)) {
         throw new RuntimeException('Ordre des fichiers invalide');
     }
 
-    $aIds = array_values(array_unique(array_map('intval', $aIds)));
+    $aIds = array_values(array_unique(array_map(
+        fn ($sId) => decryptId($sId, $sEncryptKey),
+        $aIds
+    )));
 
     $oRows = $WM_ADMIN_conn->prepare(
         'SELECT T_PROJECTFILE.PRF_N_ID, T_PROJECTFILE.PRF_N_ORDER
