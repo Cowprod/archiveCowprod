@@ -16,8 +16,8 @@ if ($PRO_N_ID <= 0) {
 
 $aProjects = oRs(
     '',
-    __DIR__ . '/../sql/project/selectProject.sql',
-    'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+    __DIR__ . '/project.sql',
+    'PRO_N_ID=' . prepNum2Update($PRO_N_ID),
     0,
     '',
     $WM_ADMIN_conn
@@ -29,7 +29,7 @@ if (!$aProject) {
     exit('Projet introuvable');
 }
 
-$aTags = oRs('', __DIR__ . '/../sql/project/selectTags.sql', '', 0, '', $WM_ADMIN_conn);
+$aTags = oRs('', __DIR__ . '/../projectTag/tag.sql', '', 0, '', $WM_ADMIN_conn);
 
 $aTagsByCategory = [];
 
@@ -49,8 +49,8 @@ foreach ($aTags as $aTag) {
 
 $aProjectTags = oRs(
     '',
-    __DIR__ . '/../sql/project/selectProjectTags.sql',
-    'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+    __DIR__ . '/../projectTag/projectTag.sql',
+    'PRO_N_ID=' . prepNum2Update($PRO_N_ID),
     0,
     '',
     $WM_ADMIN_conn
@@ -62,8 +62,8 @@ $aSelectedTagIds = array_map('intval', array_column($aProjectTags, 'TAG_N_ID'));
 
 $aProjectUrls = oRs(
     '',
-    __DIR__ . '/../sql/project/selectProjectUrls.sql',
-    'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+    __DIR__ . '/../projectUrl/projectUrl.sql',
+    'PRO_N_ID=' . prepNum2Update($PRO_N_ID),
     0,
     '',
     $WM_ADMIN_conn
@@ -73,8 +73,8 @@ $aProjectUrls = oRs(
 
 $aProjectFiles = oRs(
     '',
-    __DIR__ . '/../sql/project/selectProjectFiles.sql',
-    'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+    __DIR__ . '/../projectFile/projectFile.sql',
+    'PRO_N_ID=' . prepNum2Update($PRO_N_ID),
     0,
     '',
     $WM_ADMIN_conn
@@ -475,7 +475,7 @@ $(function () {
         setSaveStatus('Enregistrement…', false);
 
         $.ajax({
-            url: '/project/api/trUpd.php',
+            url: '/project/trUpdProject.php',
             type: 'POST',
             dataType: 'json',
             data: {
@@ -556,7 +556,7 @@ $(function () {
         setSaveStatus('Enregistrement…', false);
 
         $.ajax({
-            url: '/project/api/trTags.php',
+            url: '/projectTag/trUpdProjectTag.php',
             type: 'POST',
             dataType: 'json',
             data: {
@@ -605,7 +605,7 @@ $(function () {
         const $body = bUrl ? $('#tUrlBody') : $('#tFileBody');
         const sDataName = bUrl ? 'url-id' : 'file-id';
         const sParam = bUrl ? 'PRU_N_ID[]' : 'PRF_N_ID[]';
-        const sUrl = bUrl ? '/project/api/trOrderUrl.php' : '/project/api/trOrderFile.php';
+        const sUrl = bUrl ? '/projectUrl/trOrderProjectUrl.php' : '/projectFile/trOrderProjectFile.php';
         const aData = [{name:'PRO_N_ID', value:$('#PRO_N_ID').val()}];
 
         $body.children('tr').each(function () {
@@ -666,7 +666,7 @@ $(function () {
         setSaveStatus('Enregistrement…', false);
 
         $.ajax({
-            url: '/project/api/trUpdUrl.php',
+            url: '/projectUrl/trUpdProjectUrl.php',
             type: 'POST',
             dataType: 'json',
             data: {
@@ -723,7 +723,7 @@ $(function () {
         const $form = $(this);
 
         $.ajax({
-            url: '/project/api/trAddUrl.php',
+            url: '/projectUrl/trUpdProjectUrl.php',
             type: 'POST',
             dataType: 'json',
             data: $form.serialize() + '&PRO_N_ID=' + encodeURIComponent($('#PRO_N_ID').val())
@@ -754,7 +754,7 @@ $(function () {
         }
 
         $.ajax({
-            url: '/project/api/trDeleteUrl.php',
+            url: '/projectUrl/trSupProjectUrl.php',
             type: 'POST',
             dataType: 'json',
             data: {
@@ -822,7 +822,7 @@ $(function () {
 
         setSaveStatus('Envoi du fichier…', false);
         $.ajax({
-            url: bClipboard ? '/project/api/trPasteFile.php' : '/project/api/trUploadFile.php',
+            url: bClipboard ? '/projectFile/trPasteProjectFile.php' : '/projectFile/trUploadProjectFile.php',
             type: 'POST', dataType: 'json', data: fd, processData: false, contentType: false
         }).done(function (data) {
             if (data.success === true) { window.location.reload(); return; }
@@ -837,7 +837,7 @@ $(function () {
         const fd = new FormData(this);
         fd.append('PRO_N_ID', $('#PRO_N_ID').val());
         setSaveStatus('Envoi du fichier…', false);
-        $.ajax({url:'/project/api/trUploadFile.php',type:'POST',dataType:'json',data:fd,processData:false,contentType:false})
+        $.ajax({url:'/projectFile/trUploadProjectFile.php',type:'POST',dataType:'json',data:fd,processData:false,contentType:false})
         .done(function(data){if(data.success===true){window.location.reload();return;}setSaveStatus(data.message||'Erreur',true);})
         .fail(function(xhr){setSaveStatus(xhr.responseJSON&&xhr.responseJSON.message?xhr.responseJSON.message:'Erreur lors de l’envoi',true);});
     });
@@ -923,14 +923,14 @@ $(function () {
     function saveFile($field) {
         const $row = $field.closest('[data-file-id]');
         setFieldState($field, 'warning');
-        $.ajax({url:'/project/api/trUpdFile.php',type:'POST',dataType:'json',data:{PRF_N_ID:$row.data('file-id'),sField:$field.data('field'),sValue:$field.val()}})
+        $.ajax({url:'/projectFile/trUpdProjectFile.php',type:'POST',dataType:'json',data:{PRF_N_ID:$row.data('file-id'),sField:$field.data('field'),sValue:$field.val()}})
         .done(function(data){if(data.success===true){setFieldState($field,'success');return;}setFieldState($field,'danger');setSaveStatus(data.message||'Erreur',true);})
         .fail(function(xhr){setFieldState($field,'danger');setSaveStatus(xhr.responseJSON&&xhr.responseJSON.message?xhr.responseJSON.message:'Erreur',true);});
     }
     $('.js-file-text').typing({delay:600,start:function(e,x){setFieldState(x,'warning')},stop:function(e,x){saveFile(x)}});
     $('.js-file-change').on('change',function(){saveFile($(this))});
-    $('.js-delete-file').on('click',function(){const $row=$(this).closest('[data-file-id]');if(!confirm('Supprimer ce fichier du catalogue ?'))return;$.post('/project/api/trDeleteFile.php',{PRF_N_ID:$row.data('file-id')},function(data){if(data.success)$row.remove();},'json');});
-    $('.js-search-image').on('change',function(){const $field=$(this);setFieldState($field,'warning');$.post('/project/api/trSearchImage.php',{PRF_N_ID:$field.val()},function(data){if(data.success)setFieldState($field,'success');else setFieldState($field,'danger');},'json').fail(function(){setFieldState($field,'danger')});});
+    $('.js-delete-file').on('click',function(){const $row=$(this).closest('[data-file-id]');if(!confirm('Supprimer ce fichier du catalogue ?'))return;$.post('/projectFile/trSupProjectFile.php',{PRF_N_ID:$row.data('file-id')},function(data){if(data.success)$row.remove();},'json');});
+    $('.js-search-image').on('change',function(){const $field=$(this);setFieldState($field,'warning');$.post('/projectFile/trSearchImageProjectFile.php',{PRF_N_ID:$field.val()},function(data){if(data.success)setFieldState($field,'success');else setFieldState($field,'danger');},'json').fail(function(){setFieldState($field,'danger')});});
 
     $('#bDeleteProject').on('click', function () {
         if (!confirm('Supprimer ce projet du catalogue ?')) {
@@ -938,7 +938,7 @@ $(function () {
         }
 
         $.ajax({
-            url: '/project/api/trDelete.php',
+            url: '/project/trSupProject.php',
             type: 'POST',
             dataType: 'json',
             data: {
