@@ -28,7 +28,7 @@ try {
             0,
             '',
             $WM_ADMIN_conn
-        );;
+        );
 
         $aValidTagIds = array_map('intval', array_column($aValidRows, 'TAG_N_ID'));
         sort($aWantedTagIds);
@@ -46,7 +46,7 @@ try {
         0,
         '',
         $WM_ADMIN_conn
-    );;
+    );
 
     $aCurrentTagIds = array_map('intval', array_column($aCurrentRows, 'TAG_N_ID'));
     $aToAdd = array_values(array_diff($aWantedTagIds, $aCurrentTagIds));
