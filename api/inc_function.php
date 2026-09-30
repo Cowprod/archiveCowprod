@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/inc_api_bdd_mysql.php';
+require_once __DIR__ . '/inc_api_text.php';
 require_once __DIR__ . '/inc_file.php';
 
 function sSignature(): string
