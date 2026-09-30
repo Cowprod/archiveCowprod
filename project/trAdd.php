@@ -21,5 +21,5 @@ $oInsert->execute([
 
 $PRO_N_ID = (int) $WM_ADMIN_conn->lastInsertId();
 
-header('Location: /project/upd.php?PRO_N_ID=' . $PRO_N_ID);
+header('Location: /project/upd.php?PRO_N_ID=' . urlencode(encrypt((string) $PRO_N_ID, $sEncryptKey)));
 exit;
