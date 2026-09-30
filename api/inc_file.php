@@ -214,12 +214,29 @@ function archiveCaptureUrlScreenshot(string $sUrl, string $sPath): void
 
     $sChromium = archiveFindChromiumBinary();
 
+    $sChromeTemp = rtrim(sys_get_temp_dir(), '/') . '/archiveCowprod-chrome-' . bin2hex(random_bytes(6));
+    $sChromeConfig = $sChromeTemp . '/config';
+    $sChromeCache = $sChromeTemp . '/cache';
+    $sChromeProfile = $sChromeTemp . '/profile';
+
+    foreach ([$sChromeTemp, $sChromeConfig, $sChromeCache, $sChromeProfile] as $sDir) {
+        if (!is_dir($sDir) && !mkdir($sDir, 0700, true) && !is_dir($sDir)) {
+            throw new RuntimeException('Impossible de créer le dossier temporaire Chromium');
+        }
+    }
+
     $sCommand =
-        escapeshellarg($sChromium)
+        'HOME=' . escapeshellarg($sChromeTemp)
+        . ' XDG_CONFIG_HOME=' . escapeshellarg($sChromeConfig)
+        . ' XDG_CACHE_HOME=' . escapeshellarg($sChromeCache)
+        . ' ' . escapeshellarg($sChromium)
         . ' --headless'
         . ' --disable-gpu'
         . ' --disable-dev-shm-usage'
         . ' --hide-scrollbars'
+        . ' --no-first-run'
+        . ' --no-default-browser-check'
+        . ' --user-data-dir=' . escapeshellarg($sChromeProfile)
         . ' --window-size=1440,1000'
         . ' --virtual-time-budget=5000'
         . ' --screenshot=' . escapeshellarg($sPath)
@@ -272,6 +289,30 @@ function archiveCaptureUrlScreenshot(string $sUrl, string $sPath): void
     fclose($aPipes[1]);
     fclose($aPipes[2]);
     proc_close($oProcess);
+
+    $fRemoveTree = function (string $sDir) use (&$fRemoveTree): void {
+        if (!is_dir($sDir)) {
+            return;
+        }
+
+        foreach (scandir($sDir) ?: [] as $sEntry) {
+            if ($sEntry === '.' || $sEntry === '..') {
+                continue;
+            }
+
+            $sEntryPath = $sDir . '/' . $sEntry;
+
+            if (is_dir($sEntryPath) && !is_link($sEntryPath)) {
+                $fRemoveTree($sEntryPath);
+            } else {
+                @unlink($sEntryPath);
+            }
+        }
+
+        @rmdir($sDir);
+    };
+
+    $fRemoveTree($sChromeTemp);
 
     if (
         $nExitCode !== 0
