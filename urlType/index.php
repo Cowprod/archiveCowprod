@@ -2,16 +2,30 @@
 require_once __DIR__ . '/../secure.php';
 $oUrlTypes=oRs('',__DIR__.'/urlType.sql','',0,'',$WM_ADMIN_conn);
 ?>
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet"><style>.autosave-warning{border-color:var(--bs-warning)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-warning-rgb),.25)!important}.autosave-success{border-color:var(--bs-success)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-success-rgb),.25)!important}.autosave-danger{border-color:var(--bs-danger)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-danger-rgb),.25)!important}</style></head>
-<body><div class="container-fluid py-3"><h1 class="h5 mb-3">Types d’URL</h1><div id="dMessage" class="alert alert-danger d-none"></div>
-<form id="fAdd" class="mb-3"><div class="input-group"><span class="input-group-text">Type</span><input class="form-control" name="UTY_CH_LABEL" placeholder="Libellé" required><button class="btn btn-success"><i class="fa fa-plus-circle me-2"></i>Ajouter</button></div></form>
-<table class="table table-bordered table-striped table-sm align-middle"><tbody>
-<?php foreach($oUrlTypes as $a): ?><tr data-id="<?= htmlspecialchars(encrypt((string)$a['UTY_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8') ?>"><td class="text-center" style="width:50px"><button class="btn btn-danger btn-sm js-del" type="button"><i class="fa fa-trash"></i></button></td><td><input class="form-control form-control-sm js-label" value="<?= htmlspecialchars($a['UTY_CH_LABEL'],ENT_QUOTES,'UTF-8') ?>"></td></tr><?php endforeach; ?>
-</tbody></table></div>
-
-<script>$(function(){function state(x,s){clearTimeout(x.data('ast'));x.removeClass('autosave-warning autosave-success autosave-danger');if(s==='warning')x.addClass('autosave-warning');else if(s==='success'){x.addClass('autosave-success');x.data('ast',setTimeout(function(){x.removeClass('autosave-success');},1500));}else if(s==='danger')x.addClass('autosave-danger');}function post(u,d,ok,fail){$.post(u,d).done(function(r){if(r.success){if(ok)ok();}else $('#dMessage').removeClass('d-none').text(r.message||'Erreur');}).fail(function(x){$('#dMessage').removeClass('d-none').text(x.responseJSON&&x.responseJSON.message?x.responseJSON.message:'Erreur');if(fail)fail();});}
-$('#fAdd').on('submit',function(e){e.preventDefault();post('/urlType/trUpdUrlType.php',$(this).serialize(),function(){location.reload();});});
-$('.js-label').typing({delay:500,start:function(e,x){state(x,'warning');},stop:function(e,x){state(x,'warning');post('/urlType/trUpdUrlType.php',{UTY_N_ID:x.closest('tr').data('id'),UTY_CH_LABEL:x.val()},function(){state(x,'success');},function(){state(x,'danger');});}});
-$('.js-del').on('click',function(){var r=$(this).closest('tr');if(confirm('Supprimer ce type d’URL ?'))post('/urlType/trSupUrlType.php',{UTY_N_ID:r.data('id')},function(){r.remove();});});});</script></body></html>
+<div id="dUrlTypeAdmin">
+<div id="dUrlTypeMessage" class="alert alert-danger d-none"></div>
+<form id="fUrlTypeAdd" class="mb-3">
+<div class="input-group">
+<span class="input-group-text w-25">Type</span>
+<input class="form-control" name="UTY_CH_LABEL" required>
+<button class="btn btn-success" type="submit"><i class="fa fa-plus-circle me-2"></i>Ajouter</button>
+</div>
+</form>
+<table class="table table-bordered table-striped table-sm align-middle mb-0"><tbody>
+<?php foreach($oUrlTypes as $aUrlType): ?>
+<tr data-id="<?=htmlspecialchars(encrypt((string)$aUrlType['UTY_N_ID'],$sEncryptKey),ENT_QUOTES,'UTF-8')?>">
+<td class="text-center" style="width:50px"><button class="btn btn-danger btn-sm js-urltype-del" type="button"><i class="fa fa-trash"></i></button></td>
+<td><input class="form-control form-control-sm js-urltype-label" value="<?=htmlspecialchars($aUrlType['UTY_CH_LABEL'],ENT_QUOTES,'UTF-8')?>"></td>
+</tr>
+<?php endforeach; ?>
+</tbody></table>
+</div>
+<script>
+(function(){
+function state(x,s){clearTimeout(x.data('ast'));x.removeClass('autosave-warning autosave-success autosave-danger');if(s==='warning')x.addClass('autosave-warning');if(s==='success'){x.addClass('autosave-success');x.data('ast',setTimeout(function(){x.removeClass('autosave-success')},1500));}if(s==='danger')x.addClass('autosave-danger');}
+function post(u,d,ok,ko){$('#dUrlTypeMessage').addClass('d-none').text('');$.ajax({url:u,type:'POST',dataType:'json',data:d}).done(function(r){if(r.success===true){if(ok)ok();return;}$('#dUrlTypeMessage').removeClass('d-none').text(r.message||'Erreur');if(ko)ko();}).fail(function(x){$('#dUrlTypeMessage').removeClass('d-none').text(x.responseJSON&&x.responseJSON.message?x.responseJSON.message:'Erreur');if(ko)ko();});}
+$('#fUrlTypeAdd').on('submit',function(e){e.preventDefault();post('/urlType/trUpdUrlType.php',$(this).serialize(),function(){updDiv('#modalAdminBody','/urlType/index.php');});});
+$('#dUrlTypeAdmin .js-urltype-label').typing({delay:500,start:function(e,x){state(x,'warning');},stop:function(e,x){post('/urlType/trUpdUrlType.php',{UTY_N_ID:x.closest('tr').data('id'),UTY_CH_LABEL:x.val()},function(){state(x,'success');},function(){state(x,'danger');});}});
+$('#dUrlTypeAdmin .js-urltype-del').on('click',function(){var r=$(this).closest('tr');cowprodConfirm('Supprimer ce type d URL ?',function(){post('/urlType/trSupUrlType.php',{UTY_N_ID:r.data('id')},function(){r.remove();});});});
+})();
+</script>
