@@ -88,6 +88,31 @@ require_once __DIR__ . '/secure.php';
             margin: 0;
         }
 
+        .select2-container--default .select2-dropdown {
+            background-color: #fff;
+            color: #212529;
+        }
+
+        .select2-container--default .select2-results__option,
+        .select2-container--default .select2-results__group {
+            color: #212529;
+        }
+
+        .select2-container--default .select2-results__option--selected {
+            background-color: #e9ecef;
+            color: #212529;
+        }
+
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            background-color: #fff;
+            color: #212529;
+        }
+
         .w-5 { width: 5% !important; }
         .w-10 { width: 10% !important; }
         .w-15 { width: 15% !important; }
