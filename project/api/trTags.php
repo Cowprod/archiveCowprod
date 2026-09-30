@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../secure.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $PRO_N_ID = isset($_POST['PRO_N_ID']) ? (int) $_POST['PRO_N_ID'] : 0;
+    $PRO_N_ID = decryptId($_POST['PRO_N_ID'] ?? '', $sEncryptKey);
     $aWantedTagIds = $_POST['TAG_N_ID'] ?? [];
 
     if ($PRO_N_ID <= 0) {
@@ -16,7 +16,10 @@ try {
         $aWantedTagIds = [$aWantedTagIds];
     }
 
-    $aWantedTagIds = array_values(array_unique(array_filter(array_map('intval', $aWantedTagIds))));
+    $aWantedTagIds = array_values(array_unique(array_map(
+        fn ($sId) => decryptId($sId, $sEncryptKey),
+        array_filter($aWantedTagIds, fn ($sId) => trim((string) $sId) !== '')
+    )));
 
     $oProject = $WM_ADMIN_conn->prepare(
         'SELECT T_PROJECT.PRO_N_ID
