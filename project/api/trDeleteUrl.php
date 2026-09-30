@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../secure.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $PRU_N_ID = (int) ($_POST['PRU_N_ID'] ?? 0);
+    $PRU_N_ID = decryptId($_POST['PRU_N_ID'] ?? '', $sEncryptKey);
 
     if ($PRU_N_ID <= 0) {
         throw new RuntimeException('URL invalide');
