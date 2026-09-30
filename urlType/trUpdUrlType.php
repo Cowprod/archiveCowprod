@@ -10,7 +10,16 @@ try {
     }
 
     if (!isset($_POST['UTY_N_ID']) || trim((string) $_POST['UTY_N_ID']) === '') {
-        $WM_ADMIN_conn->exec('INSERT INTO T_URLTYPE (UTY_CH_LABEL,UTY_DT_CREATION,UTY_CH_CREATION) VALUES (' . prepString2Update($sLabel) . ',NOW(),' . prepString2Update(sSignature()) . ')');
+        $UTY_N_ID = getIdConPdo('T_URLTYPE', 'UTY_CH_CREATION', 'temporaire', $WM_ADMIN_conn);
+
+        $WM_ADMIN_conn->exec(
+            'UPDATE T_URLTYPE SET '
+            . 'UTY_DT_CREATION=NOW(),'
+            . 'UTY_CH_CREATION=' . prepString2Update(sSignature()) . ','
+            . 'UTY_CH_LABEL=' . prepString2Update($sLabel)
+            . ' WHERE UTY_N_ID=' . prepNum2Update($UTY_N_ID)
+        );
+
         echo json_encode(['success' => true]);
         exit;
     }
