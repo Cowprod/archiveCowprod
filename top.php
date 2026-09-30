@@ -13,12 +13,25 @@ require_once __DIR__ . '/secure.php';
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <style>
-        .select2-container { flex: 1 1 auto; width: 1% !important; }
+        .select2-container {
+            flex: 1 1 auto;
+            width: 1% !important;
+        }
 
+        .input-group .select2-container,
         .tag-select-group .select2-container {
             display: flex;
             align-items: stretch;
+            min-width: 0;
         }
+
+        .input-group .select2-container .selection,
+        .tag-select-group .select2-container .selection {
+            display: flex;
+            flex: 1 1 auto;
+            width: 100%;
+        }
+
         .select2-container .select2-selection--multiple {
             min-height: 42px;
             border: 1px solid var(--bs-light) !important;
@@ -26,9 +39,23 @@ require_once __DIR__ . '/secure.php';
             background: transparent;
         }
 
+        .input-group .select2-selection--multiple,
         .tag-select-group .select2-selection--multiple {
             width: 100%;
-            height: 100%;
+            height: 100% !important;
+            min-height: 100% !important;
+            border-radius: 0 !important;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group .select2-selection--multiple .select2-selection__rendered,
+        .tag-select-group .select2-selection--multiple .select2-selection__rendered {
+            width: 100%;
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .tag-admin-button {
