@@ -10,7 +10,6 @@ try {
     }
 
     $WM_ADMIN_conn->beginTransaction();
-    historiseTable('T_TAGCATEGORY','TCA',$TCA_N_ID,$WM_ADMIN_conn);
 
     if ($WM_ADMIN_conn->exec(
         'UPDATE T_TAGCATEGORY SET TCA_DT_SUPPRESSION=NOW(),TCA_CH_SUPPRESSION=' . prepString2Update(sSignature())
