@@ -138,7 +138,7 @@ require_once __DIR__ . '/top.php';
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0">Catalogue</h1>
 
-        <form method="post" action="/project/trAdd.php">
+        <form method="post" action="/project/trUpdProject.php">
             <button type="submit" class="btn btn-primary">
                 <i class="fa fa-plus me-2"></i>Nouveau projet
             </button>
