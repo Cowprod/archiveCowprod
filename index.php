@@ -105,6 +105,17 @@ if (count($aSearchTagIds) > 0) {
     ) = ' . prepNum2Update(count($aSearchTagIds));
 }
 
+$nArchiveUrlTypeId = (int) getfield(
+    'UTY_N_ID',
+    'T_URLTYPE',
+    'WHERE UTY_DT_SUPPRESSION IS NULL AND UTY_CH_LABEL=' . prepString2Update('Archive'),
+    $WM_ADMIN_conn
+);
+
+if ($sMaintenance === 'url' && $nArchiveUrlTypeId <= 0) {
+    $sMaintenance = '';
+}
+
 if ($sMaintenance === 'tag' && $nMaintenanceTCAId !== null) {
     $sMaintenanceCategoryLabel = (string) getfield(
         'TCA_CH_LABEL',
@@ -134,8 +145,15 @@ if ($sMaintenance === 'tag') {
     $sMaintenanceLabel = 'Sans année';
     $aProjects = oRs('', __DIR__ . '/maintenanceProjectWithoutYear.sql', '', 0, '', $WM_ADMIN_conn);
 } elseif ($sMaintenance === 'url') {
-    $sMaintenanceLabel = 'Sans URL';
-    $aProjects = oRs('', __DIR__ . '/maintenanceProjectWithoutUrl.sql', '', 0, '', $WM_ADMIN_conn);
+    $sMaintenanceLabel = 'Sans URL archive';
+    $aProjects = oRs(
+        '',
+        __DIR__ . '/maintenanceProjectWithoutUrl.sql',
+        'UTY_N_ID=' . prepNum2Update($nArchiveUrlTypeId),
+        0,
+        '',
+        $WM_ADMIN_conn
+    );
 } elseif ($sMaintenance === 'file') {
     $sMaintenanceLabel = 'Sans fichier';
     $aProjects = oRs('', __DIR__ . '/maintenanceProjectWithoutFile.sql', '', 0, '', $WM_ADMIN_conn);
@@ -187,17 +205,22 @@ $nMaintenanceWithoutYear = (int) getfield(
     $WM_ADMIN_conn
 );
 
-$nMaintenanceWithoutUrl = (int) getfield(
-    'COUNT(*)',
-    'T_PROJECT',
-    'WHERE T_PROJECT.PRO_DT_SUPPRESSION IS NULL'
-        . ' AND NOT EXISTS ('
-        . 'SELECT 1 FROM T_PROJECTURL'
-        . ' WHERE T_PROJECTURL.PRO_N_ID=T_PROJECT.PRO_N_ID'
-        . ' AND T_PROJECTURL.PRU_DT_SUPPRESSION IS NULL'
-        . ')',
-    $WM_ADMIN_conn
-);
+$nMaintenanceWithoutUrl = 0;
+
+if ($nArchiveUrlTypeId > 0) {
+    $nMaintenanceWithoutUrl = (int) getfield(
+        'COUNT(*)',
+        'T_PROJECT',
+        'WHERE T_PROJECT.PRO_DT_SUPPRESSION IS NULL'
+            . ' AND NOT EXISTS ('
+            . 'SELECT 1 FROM T_PROJECTURL'
+            . ' WHERE T_PROJECTURL.PRO_N_ID=T_PROJECT.PRO_N_ID'
+            . ' AND T_PROJECTURL.PRU_DT_SUPPRESSION IS NULL'
+            . ' AND T_PROJECTURL.UTY_N_ID=' . prepNum2Update($nArchiveUrlTypeId)
+            . ')',
+        $WM_ADMIN_conn
+    );
+}
 
 $nMaintenanceWithoutFile = (int) getfield(
     'COUNT(*)',
@@ -308,7 +331,7 @@ require_once __DIR__ . '/top.php';
                             href="/index.php?maintenance=url"
                             class="btn btn-sm text-dark <?php echo $sMaintenance === 'url' ? 'btn-warning' : 'btn-light'; ?>"
                             title="<?php echo $nMaintenanceWithoutUrl; ?> projet<?php echo $nMaintenanceWithoutUrl > 1 ? 's' : ''; ?> concerné<?php echo $nMaintenanceWithoutUrl > 1 ? 's' : ''; ?>"
-                        >Sans URL</a>
+                        >Sans URL archive</a>
                     <?php endif; ?>
 
                     <?php if ($nMaintenanceWithoutFile > 0): ?>
