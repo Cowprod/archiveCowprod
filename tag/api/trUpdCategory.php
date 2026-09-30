@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../secure.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $TCA_N_ID = (int) ($_POST['TCA_N_ID'] ?? 0);
+    $TCA_N_ID = decryptId($_POST['TCA_N_ID'] ?? '', $sEncryptKey);
     $sField = trim((string) ($_POST['sField'] ?? ''));
     $sValue = trim((string) ($_POST['sValue'] ?? ''));
 
