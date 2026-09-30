@@ -2,29 +2,9 @@
 
 require_once __DIR__ . '/../secure.php';
 
-$aCategories = oRs(
-    'SELECT TCA_N_ID,TCA_CH_LABEL,TCA_CH_COLOR,TCA_N_ORDER
-     FROM T_TAGCATEGORY
-     WHERE TCA_DT_SUPPRESSION IS NULL
-     ORDER BY TCA_N_ORDER ASC,TCA_CH_LABEL ASC',
-    '',
-    '',
-    0,
-    '',
-    $WM_ADMIN_conn
-);
+$aCategories = oRs('', __DIR__ . '/../sql/tag/selectCategories.sql', '', 0, '', $WM_ADMIN_conn);
 
-$aTags = oRs(
-    'SELECT TAG_N_ID,TCA_N_ID,TAG_CH_LABEL,TAG_N_ORDER
-     FROM T_TAG
-     WHERE TAG_DT_SUPPRESSION IS NULL
-     ORDER BY TAG_N_ORDER ASC,TAG_CH_LABEL ASC',
-    '',
-    '',
-    0,
-    '',
-    $WM_ADMIN_conn
-);
+$aTags = oRs('', __DIR__ . '/../sql/tag/selectTags.sql', '', 0, '', $WM_ADMIN_conn);
 
 $aTagsByCategory = [];
 
