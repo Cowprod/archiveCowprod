@@ -262,7 +262,7 @@ $(function () {
 
         const $form = $(this);
 
-        ajaxPost('/tag/api/trAddCategory.php', $form.serialize(), function () {
+        ajaxPost('/tag/trUpdTagCategory.php', $form.serialize(), function () {
             window.location.reload();
         });
     });
@@ -272,7 +272,7 @@ $(function () {
 
         const $form = $(this);
 
-        ajaxPost('/tag/api/trAddTag.php', $form.serialize(), function () {
+        ajaxPost('/tag/trUpdTag.php', $form.serialize(), function () {
             window.location.reload();
         });
     });
