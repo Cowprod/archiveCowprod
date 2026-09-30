@@ -133,6 +133,19 @@ function archiveInsertProjectFile(
         $oConn
     );
 
+    $bSearchImage = false;
+
+    if (archiveIsImageMime($sMime)) {
+        $bSearchImage = (int) getfield(
+            'count(*)',
+            'T_PROJECTFILE',
+            'WHERE PRO_N_ID=' . prepNum2Update($PRO_N_ID)
+                . ' AND PRF_DT_SUPPRESSION IS NULL'
+                . " AND PRF_CH_MIMETYPE LIKE 'image/%'",
+            $oConn
+        ) === 0;
+    }
+
     $PRF_N_ID = getIdConPdo('T_PROJECTFILE', 'PRF_CH_CREATION', 'temporaire', $oConn);
 
     $oConn->exec(
@@ -148,7 +161,7 @@ function archiveInsertProjectFile(
         . 'PRF_CH_SOURCE_URL=' . ($sSourceUrl === null || trim($sSourceUrl) === '' ? 'null' : prepString2Update($sSourceUrl)) . ','
         . 'PRF_N_YEAR=' . prepNum2Update($nYear) . ','
         . 'PRF_N_ORDER=' . prepNum2Update($nOrder) . ','
-        . 'PRF_BL_SEARCHIMAGE=0,'
+        . 'PRF_BL_SEARCHIMAGE=' . prepNum2Update($bSearchImage ? 1 : 0) . ','
         . 'PRF_DT_CREATION=NOW(),'
         . 'PRF_CH_CREATION=' . prepString2Update(sSignature())
         . ' WHERE PRF_N_ID=' . prepNum2Update($PRF_N_ID)
