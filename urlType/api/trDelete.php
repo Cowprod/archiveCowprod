@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__.'/../../secure.php'; header('Content-Type: application/json; charset=utf-8');
-try{$id=(int)($_POST['UTY_N_ID']??0);if($id<=0)throw new RuntimeException('Type invalide');
+try{$id=decryptId($_POST['UTY_N_ID'] ?? '', $sEncryptKey);if($id<=0)throw new RuntimeException('Type invalide');
 $q=$WM_ADMIN_conn->prepare('SELECT COUNT(*) FROM T_PROJECTURL WHERE UTY_N_ID=:id AND PRU_DT_SUPPRESSION IS NULL');$q->execute(['id'=>$id]);if((int)$q->fetchColumn()>0)throw new RuntimeException('Ce type est utilisé par une ou plusieurs URLs');
 $WM_ADMIN_conn->beginTransaction();historiseTable('T_URLTYPE','UTY',$id,$WM_ADMIN_conn);
 $q=$WM_ADMIN_conn->prepare('UPDATE T_URLTYPE SET UTY_DT_SUPPRESSION=NOW(),UTY_CH_SUPPRESSION=:s WHERE UTY_N_ID=:id AND UTY_DT_SUPPRESSION IS NULL');$q->execute(['s'=>sSignature(),'id'=>$id]);
