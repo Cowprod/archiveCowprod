@@ -126,62 +126,46 @@ function archiveInsertProjectFile(
     $sMime = archiveMimeType($sPath);
     $nSize = filesize($sPath);
 
-    $oOrder = $oConn->prepare(
-        'SELECT COALESCE(MAX(T_PROJECTFILE.PRF_N_ORDER), 0) + 10
-         FROM T_PROJECTFILE
-         WHERE T_PROJECTFILE.PRO_N_ID = :PRO_N_ID
-           AND T_PROJECTFILE.PRF_DT_SUPPRESSION IS NULL'
-    );
-    $oOrder->execute(['PRO_N_ID' => $PRO_N_ID]);
-
-    $oInsert = $oConn->prepare(
-        'INSERT INTO T_PROJECTFILE (
-            PRO_N_ID,
-            FTY_N_ID,
-            PRF_CH_LABEL,
-            PRF_CH_FILENAME,
-            PRF_CH_MIMETYPE,
-            PRF_N_SIZE,
-            PRF_CH_PATH,
-            PRF_CH_SOURCE,
-            PRF_CH_SOURCE_URL,
-            PRF_N_YEAR,
-            PRF_N_ORDER,
-            PRF_BL_SEARCHIMAGE,
-            PRF_DT_CREATION,
-            PRF_CH_CREATION
-        ) VALUES (
-            :PRO_N_ID,
-            :FTY_N_ID,
-            :PRF_CH_LABEL,
-            :PRF_CH_FILENAME,
-            :PRF_CH_MIMETYPE,
-            :PRF_N_SIZE,
-            :PRF_CH_PATH,
-            :PRF_CH_SOURCE,
-            :PRF_CH_SOURCE_URL,
-            :PRF_N_YEAR,
-            :PRF_N_ORDER,
-            0,
-            NOW(),
-            :PRF_CH_CREATION
-        )'
+    $nOrder = (int) getfield(
+        'COALESCE(MAX(PRF_N_ORDER), 0) + 10',
+        'T_PROJECTFILE',
+        'WHERE PRO_N_ID=' . prepNum2Update($PRO_N_ID) . ' AND PRF_DT_SUPPRESSION IS NULL',
+        $oConn
     );
 
-    $oInsert->execute([
-        'PRO_N_ID' => $PRO_N_ID,
-        'FTY_N_ID' => $FTY_N_ID,
-        'PRF_CH_LABEL' => $sLabel,
-        'PRF_CH_FILENAME' => $sOriginalName,
-        'PRF_CH_MIMETYPE' => $sMime,
-        'PRF_N_SIZE' => $nSize,
-        'PRF_CH_PATH' => $sPath,
-        'PRF_CH_SOURCE' => $sSource,
-        'PRF_CH_SOURCE_URL' => $sSourceUrl,
-        'PRF_N_YEAR' => $nYear,
-        'PRF_N_ORDER' => (int) $oOrder->fetchColumn(),
-        'PRF_CH_CREATION' => sSignature(),
-    ]);
+    $sSql = 'INSERT INTO T_PROJECTFILE (
+        PRO_N_ID,
+        FTY_N_ID,
+        PRF_CH_LABEL,
+        PRF_CH_FILENAME,
+        PRF_CH_MIMETYPE,
+        PRF_N_SIZE,
+        PRF_CH_PATH,
+        PRF_CH_SOURCE,
+        PRF_CH_SOURCE_URL,
+        PRF_N_YEAR,
+        PRF_N_ORDER,
+        PRF_BL_SEARCHIMAGE,
+        PRF_DT_CREATION,
+        PRF_CH_CREATION
+    ) VALUES (
+        ' . prepNum2Update($PRO_N_ID) . ',
+        ' . prepNum2Update($FTY_N_ID) . ',
+        ' . ($sLabel === null || trim($sLabel) === '' ? 'null' : prepString2Update($sLabel)) . ',
+        ' . prepString2Update($sOriginalName) . ',
+        ' . prepString2Update($sMime) . ',
+        ' . prepNum2Update($nSize) . ',
+        ' . prepString2Update($sPath) . ',
+        ' . prepString2Update($sSource) . ',
+        ' . ($sSourceUrl === null || trim($sSourceUrl) === '' ? 'null' : prepString2Update($sSourceUrl)) . ',
+        ' . ($nYear === null ? 'null' : prepNum2Update($nYear)) . ',
+        ' . prepNum2Update($nOrder) . ',
+        0,
+        NOW(),
+        ' . prepString2Update(sSignature()) . '
+    )';
+
+    $oConn->exec($sSql);
 
     return (int) $oConn->lastInsertId();
 }
@@ -203,30 +187,24 @@ function archiveValidateYear(?string $sYear): ?int
 
 function archiveAssertProject(PDO $oConn, int $PRO_N_ID): void
 {
-    $o = $oConn->prepare(
-        'SELECT T_PROJECT.PRO_N_ID
-         FROM T_PROJECT
-         WHERE T_PROJECT.PRO_N_ID = :PRO_N_ID
-           AND T_PROJECT.PRO_DT_SUPPRESSION IS NULL'
-    );
-    $o->execute(['PRO_N_ID' => $PRO_N_ID]);
-
-    if (!$o->fetchColumn()) {
+    if ((int) getfield(
+        'count(*)',
+        'T_PROJECT',
+        'WHERE PRO_N_ID=' . prepNum2Update($PRO_N_ID) . ' AND PRO_DT_SUPPRESSION IS NULL',
+        $oConn
+    ) !== 1) {
         throw new RuntimeException('Projet introuvable');
     }
 }
 
 function archiveAssertFileType(PDO $oConn, int $FTY_N_ID): void
 {
-    $o = $oConn->prepare(
-        'SELECT T_FILETYPE.FTY_N_ID
-         FROM T_FILETYPE
-         WHERE T_FILETYPE.FTY_N_ID = :FTY_N_ID
-           AND T_FILETYPE.FTY_DT_SUPPRESSION IS NULL'
-    );
-    $o->execute(['FTY_N_ID' => $FTY_N_ID]);
-
-    if (!$o->fetchColumn()) {
+    if ((int) getfield(
+        'count(*)',
+        'T_FILETYPE',
+        'WHERE FTY_N_ID=' . prepNum2Update($FTY_N_ID) . ' AND FTY_DT_SUPPRESSION IS NULL',
+        $oConn
+    ) !== 1) {
         throw new RuntimeException('Type de fichier introuvable');
     }
 }
