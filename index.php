@@ -151,7 +151,7 @@ require_once __DIR__ . '/top.php';
             <div class="row g-2">
                 <div class="col-12 col-xl">
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-search me-2"></i>Texte</span>
+                        <span class="input-group-text w-25"><i class="fa fa-search me-2"></i>Texte</span>
                         <input
                             type="search"
                             class="form-control"
@@ -164,7 +164,7 @@ require_once __DIR__ . '/top.php';
 
                 <div class="col-sm-5 col-xl-2">
                     <div class="input-group">
-                        <span class="input-group-text">Année</span>
+                        <span class="input-group-text w-35">Année</span>
                         <input
                             type="number"
                             min="1900"
@@ -179,7 +179,7 @@ require_once __DIR__ . '/top.php';
 
                 <div class="col-12 col-xl-5">
                     <div class="input-group search-tag-group">
-                        <span class="input-group-text">Tags <span class="ms-1 text-body-secondary">(tous)</span></span>
+                        <span class="input-group-text w-25">Tags <span class="ms-1 text-body-secondary">(tous)</span></span>
                         <select class="form-select" id="tagSearch" name="tag[]" multiple>
                             <?php foreach ($aSearchTagsByCategory as $aCategory): ?>
                                 <optgroup label="<?php echo htmlspecialchars($aCategory['label'], ENT_QUOTES, 'UTF-8'); ?>">
