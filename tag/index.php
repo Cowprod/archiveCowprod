@@ -2,37 +2,33 @@
 
 require_once __DIR__ . '/../secure.php';
 
-$oCategories = $WM_ADMIN_conn->query(
-    'SELECT
-        T_TAGCATEGORY.TCA_N_ID,
-        T_TAGCATEGORY.TCA_CH_LABEL,
-        T_TAGCATEGORY.TCA_CH_COLOR,
-        T_TAGCATEGORY.TCA_N_ORDER
+$aCategories = oRs(
+    'SELECT TCA_N_ID,TCA_CH_LABEL,TCA_CH_COLOR,TCA_N_ORDER
      FROM T_TAGCATEGORY
-     WHERE T_TAGCATEGORY.TCA_DT_SUPPRESSION IS NULL
-     ORDER BY
-        T_TAGCATEGORY.TCA_N_ORDER ASC,
-        T_TAGCATEGORY.TCA_CH_LABEL ASC'
+     WHERE TCA_DT_SUPPRESSION IS NULL
+     ORDER BY TCA_N_ORDER ASC,TCA_CH_LABEL ASC',
+    '',
+    '',
+    0,
+    '',
+    $WM_ADMIN_conn
 );
 
-$aCategories = $oCategories->fetchAll();
-
-$oTags = $WM_ADMIN_conn->query(
-    'SELECT
-        T_TAG.TAG_N_ID,
-        T_TAG.TCA_N_ID,
-        T_TAG.TAG_CH_LABEL,
-        T_TAG.TAG_N_ORDER
+$aTags = oRs(
+    'SELECT TAG_N_ID,TCA_N_ID,TAG_CH_LABEL,TAG_N_ORDER
      FROM T_TAG
-     WHERE T_TAG.TAG_DT_SUPPRESSION IS NULL
-     ORDER BY
-        T_TAG.TAG_N_ORDER ASC,
-        T_TAG.TAG_CH_LABEL ASC'
+     WHERE TAG_DT_SUPPRESSION IS NULL
+     ORDER BY TAG_N_ORDER ASC,TAG_CH_LABEL ASC',
+    '',
+    '',
+    0,
+    '',
+    $WM_ADMIN_conn
 );
 
 $aTagsByCategory = [];
 
-foreach ($oTags->fetchAll() as $aTag) {
+foreach ($aTags as $aTag) {
     $aTagsByCategory[(int) $aTag['TCA_N_ID']][] = $aTag;
 }
 ?>
