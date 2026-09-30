@@ -10,7 +10,10 @@ if (!is_array($aSearchTagIds)) {
     $aSearchTagIds = [$aSearchTagIds];
 }
 
-$aSearchTagIds = array_values(array_unique(array_filter(array_map('intval', $aSearchTagIds), fn ($nId) => $nId > 0)));
+$aSearchTagIds = array_values(array_unique(array_map(
+    fn ($sId) => decryptId($sId, $sEncryptKey),
+    array_filter($aSearchTagIds, fn ($sId) => trim((string) $sId) !== '')
+)));
 
 $nSearchYear = null;
 $bInvalidYear = false;
@@ -229,7 +232,7 @@ require_once __DIR__ . '/top.php';
                             <?php foreach ($aSearchTagsByCategory as $aCategory): ?>
                                 <optgroup label="<?php echo htmlspecialchars($aCategory['label'], ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php foreach ($aCategory['tags'] as $aTag): ?>
-                                        <option value="<?php echo (int) $aTag['TAG_N_ID']; ?>" <?php echo in_array((int) $aTag['TAG_N_ID'], $aSearchTagIds, true) ? 'selected' : ''; ?>>
+                                        <option value="<?php echo htmlspecialchars(encrypt((string) $aTag['TAG_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>" <?php echo in_array((int) $aTag['TAG_N_ID'], $aSearchTagIds, true) ? 'selected' : ''; ?>>
                                             <?php echo htmlspecialchars($aTag['TAG_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -281,10 +284,10 @@ require_once __DIR__ . '/top.php';
                 }
                 ?>
                 <div class="col-12 col-md-6 col-xl-4">
-                    <a href="/project/upd.php?PRO_N_ID=<?php echo $PRO_N_ID; ?>" class="card h-100 text-decoration-none text-body overflow-hidden">
+                    <a href="/project/upd.php?PRO_N_ID=<?php echo urlencode(encrypt((string) $PRO_N_ID, $sEncryptKey)); ?>" class="card h-100 text-decoration-none text-body overflow-hidden">
                         <?php if (isset($aSearchImageByProject[$PRO_N_ID])): ?>
                             <img
-                                src="/file.php?PRF_N_ID=<?php echo $aSearchImageByProject[$PRO_N_ID]; ?>&PRO_N_ID=<?php echo $PRO_N_ID; ?>&thumb=1"
+                                src="/file.php?PRF_N_ID=<?php echo urlencode(encrypt((string) $aSearchImageByProject[$PRO_N_ID], $sEncryptKey)); ?>&thumb=1"
                                 class="card-img-top"
                                 alt=""
                                 loading="lazy"
