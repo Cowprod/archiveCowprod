@@ -96,7 +96,7 @@ require_once __DIR__ . '/../top.php';
 
         <div class="card-body">
             <div class="input-group mb-3">
-                <span class="input-group-text">Nom</span>
+                <span class="input-group-text w-25">Nom</span>
                 <input
                     type="text"
                     class="form-control js-autosave-text"
@@ -107,7 +107,7 @@ require_once __DIR__ . '/../top.php';
             </div>
 
             <div class="input-group mb-3">
-                <span class="input-group-text">Début</span>
+                <span class="input-group-text w-25">Début</span>
                 <input
                     type="number"
                     min="1900"
@@ -118,7 +118,7 @@ require_once __DIR__ . '/../top.php';
                     value="<?php echo htmlspecialchars((string) ($aProject['PRO_N_YEARSTART'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
                 >
 
-                <span class="input-group-text">Fin</span>
+                <span class="input-group-text w-25">Fin</span>
                 <input
                     type="number"
                     min="1900"
@@ -131,7 +131,7 @@ require_once __DIR__ . '/../top.php';
             </div>
 
             <div class="input-group">
-                <span class="input-group-text align-items-start">Description</span>
+                <span class="input-group-text w-25 align-items-start">Description</span>
                 <textarea
                     class="form-control js-autosave-text"
                     id="PRO_CH_DESCRIPTION"
@@ -226,7 +226,7 @@ require_once __DIR__ . '/../top.php';
             </form>
 
             <?php if (count($aProjectUrls) > 0): ?>
-                <table class="table table-bordered table-striped table-sm align-middle mb-0">
+                <table class="table table-bordered table-striped table-sm align-middle mb-0" id="tUrlTable">
                     <tbody id="tUrlBody">
                         <?php foreach ($aProjectUrls as $aProjectUrl): ?>
                             <tr data-url-id="<?php echo htmlspecialchars(encrypt((string) $aProjectUrl['PRU_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
@@ -348,7 +348,7 @@ require_once __DIR__ . '/../top.php';
 
             <?php if (count($aProjectFiles) > 0): ?>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-sm align-middle mb-0">
+                    <table class="table table-bordered table-striped table-sm align-middle mb-0" id="tFileTable">
                         <tbody id="tFileBody">
                         <?php foreach ($aProjectFiles as $aProjectFile): ?>
                             <?php $bImage = str_starts_with((string) $aProjectFile['PRF_CH_MIMETYPE'], 'image/'); ?>
@@ -428,7 +428,6 @@ require_once __DIR__ . '/../top.php';
     </div>
 </main>
 
-<script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"></script>
 <script>
 $(function () {
     let nPendingSave = 0;
@@ -595,7 +594,23 @@ $(function () {
         window.location.reload();
     });
 
-    function saveResourceOrder(sType) {
+    function setOrderRowState($row, sState) {
+        clearTimeout($row.data('order-state-timer'));
+        $row.removeClass('table-warning table-success table-danger');
+
+        if (sState === 'warning') {
+            $row.addClass('table-warning');
+        } else if (sState === 'success') {
+            $row.addClass('table-success');
+            $row.data('order-state-timer', setTimeout(function () {
+                $row.removeClass('table-success');
+            }, 1500));
+        } else if (sState === 'danger') {
+            $row.addClass('table-danger');
+        }
+    }
+
+    function saveResourceOrder(sType, $row) {
         const bUrl = sType === 'url';
         const $body = bUrl ? $('#tUrlBody') : $('#tFileBody');
         const sDataName = bUrl ? 'url-id' : 'file-id';
@@ -607,43 +622,57 @@ $(function () {
             aData.push({name:sParam, value:$(this).data(sDataName)});
         });
 
+        setOrderRowState($row, 'warning');
         setSaveStatus('Enregistrement de l’ordre…', false);
 
-        $.ajax({url:sUrl,type:'POST',dataType:'json',data:aData})
-        .done(function(data){
-            if(data.success===true){setSaveStatus('Enregistré',false);return;}
-            setSaveStatus(data.message||'Erreur lors du classement',true);
+        $.ajax({
+            url: sUrl,
+            type: 'POST',
+            dataType: 'json',
+            data: aData
         })
-        .fail(function(xhr){
-            setSaveStatus(xhr.responseJSON&&xhr.responseJSON.message?xhr.responseJSON.message:'Erreur lors du classement',true);
+        .done(function(data) {
+            if (data.success === true) {
+                setOrderRowState($row, 'success');
+                setSaveStatus('Enregistré', false);
+                return;
+            }
+
+            setOrderRowState($row, 'danger');
+            setSaveStatus(data.message || 'Erreur lors du classement', true);
+        })
+        .fail(function(xhr) {
+            setOrderRowState($row, 'danger');
+            setSaveStatus(
+                xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : 'Erreur lors du classement',
+                true
+            );
         });
     }
 
-    if ($('#tUrlBody').length) {
-        $('#tUrlBody').sortable({
-            axis:'y',
-            handle:'.js-drag-url',
-            helper:function(e,tr){
-                const $originals=tr.children();
-                const $helper=tr.clone();
-                $helper.children().each(function(index){$(this).width($originals.eq(index).width());});
-                return $helper;
+    if ($('#tUrlTable').length) {
+        $('#tUrlTable').tableDnD({
+            dragHandle: '.js-drag-url',
+            onDragStart: function(table, row) {
+                setOrderRowState($(row), 'warning');
             },
-            update:function(){saveResourceOrder('url');}
+            onDrop: function(table, row) {
+                saveResourceOrder('url', $(row));
+            }
         });
     }
 
-    if ($('#tFileBody').length) {
-        $('#tFileBody').sortable({
-            axis:'y',
-            handle:'.js-drag-file',
-            helper:function(e,tr){
-                const $originals=tr.children();
-                const $helper=tr.clone();
-                $helper.children().each(function(index){$(this).width($originals.eq(index).width());});
-                return $helper;
+    if ($('#tFileTable').length) {
+        $('#tFileTable').tableDnD({
+            dragHandle: '.js-drag-file',
+            onDragStart: function(table, row) {
+                setOrderRowState($(row), 'warning');
             },
-            update:function(){saveResourceOrder('file');}
+            onDrop: function(table, row) {
+                saveResourceOrder('file', $(row));
+            }
         });
     }
 
