@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../secure.php';
-$oUrlTypes=$WM_ADMIN_conn->query('SELECT T_URLTYPE.UTY_N_ID,T_URLTYPE.UTY_CH_LABEL FROM T_URLTYPE WHERE T_URLTYPE.UTY_DT_SUPPRESSION IS NULL ORDER BY T_URLTYPE.UTY_CH_LABEL')->fetchAll();
+$oUrlTypes=oRs('SELECT UTY_N_ID,UTY_CH_LABEL FROM T_URLTYPE WHERE UTY_DT_SUPPRESSION IS NULL ORDER BY UTY_CH_LABEL','','',0,'',$WM_ADMIN_conn);
 ?>
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet">
