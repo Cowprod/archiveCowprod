@@ -15,13 +15,14 @@ try {
         $aIds
     )));
 
-    $aRows = $WM_ADMIN_conn->query(
-        'SELECT PRF_N_ID,PRF_N_ORDER
-         FROM T_PROJECTFILE
-         WHERE PRO_N_ID=' . prepNum2Update($PRO_N_ID) . '
-           AND PRF_DT_SUPPRESSION IS NULL
-         ORDER BY PRF_N_ORDER ASC,PRF_N_ID ASC'
-    )->fetchAll();
+    $aRows = oRs(
+        '',
+        __DIR__ . '/../../sql/project/selectOrderFiles.sql',
+        'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+        0,
+        '',
+        $WM_ADMIN_conn
+    );;
 
     $aExisting = array_map('intval', array_column($aRows, 'PRF_N_ID'));
     $aCheckExisting = $aExisting;
