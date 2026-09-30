@@ -34,20 +34,21 @@ $sSql = 'SELECT
             T_PROJECT.PRO_N_YEAREND
          FROM T_PROJECT
          WHERE T_PROJECT.PRO_DT_SUPPRESSION IS NULL';
-$aParams = [];
 
 if ($sSearch !== '') {
+    $sLike = prepString2Update('%' . $sSearch . '%');
+
     $sSql .= ' AND (
-        T_PROJECT.PRO_CH_LABEL LIKE :sSearchLabel
-        OR T_PROJECT.PRO_TX_DESCRIPTION LIKE :sSearchDescription
+        T_PROJECT.PRO_CH_LABEL LIKE ' . $sLike . '
+        OR T_PROJECT.PRO_TX_DESCRIPTION LIKE ' . $sLike . '
         OR EXISTS (
             SELECT 1
             FROM T_PROJECTURL
             WHERE T_PROJECTURL.PRO_N_ID = T_PROJECT.PRO_N_ID
               AND T_PROJECTURL.PRU_DT_SUPPRESSION IS NULL
               AND (
-                  T_PROJECTURL.PRU_CH_LABEL LIKE :sSearchUrlLabel
-                  OR T_PROJECTURL.PRU_CH_URL LIKE :sSearchUrl
+                  T_PROJECTURL.PRU_CH_LABEL LIKE ' . $sLike . '
+                  OR T_PROJECTURL.PRU_CH_URL LIKE ' . $sLike . '
               )
         )
         OR EXISTS (
@@ -56,104 +57,59 @@ if ($sSearch !== '') {
             WHERE T_PROJECTFILE.PRO_N_ID = T_PROJECT.PRO_N_ID
               AND T_PROJECTFILE.PRF_DT_SUPPRESSION IS NULL
               AND (
-                  T_PROJECTFILE.PRF_CH_LABEL LIKE :sSearchFileLabel
-                  OR T_PROJECTFILE.PRF_CH_FILENAME LIKE :sSearchFilename
+                  T_PROJECTFILE.PRF_CH_LABEL LIKE ' . $sLike . '
+                  OR T_PROJECTFILE.PRF_CH_FILENAME LIKE ' . $sLike . '
               )
         )
+        OR EXISTS (
+            SELECT 1
+            FROM T_PROJECTTAG
+            INNER JOIN T_TAG
+                ON T_TAG.TAG_N_ID = T_PROJECTTAG.TAG_N_ID
+               AND T_TAG.TAG_DT_SUPPRESSION IS NULL
+            WHERE T_PROJECTTAG.PRO_N_ID = T_PROJECT.PRO_N_ID
+              AND T_PROJECTTAG.PTA_DT_SUPPRESSION IS NULL
+              AND T_TAG.TAG_CH_LABEL LIKE ' . $sLike . '
+        )
     )';
-    $sLike = '%' . $sSearch . '%';
-    $aParams['sSearchLabel'] = $sLike;
-    $aParams['sSearchDescription'] = $sLike;
-    $aParams['sSearchUrlLabel'] = $sLike;
-    $aParams['sSearchUrl'] = $sLike;
-    $aParams['sSearchFileLabel'] = $sLike;
-    $aParams['sSearchFilename'] = $sLike;
 }
 
 if ($nSearchYear !== null) {
     $sSql .= ' AND (
-        (T_PROJECT.PRO_N_YEARSTART IS NULL OR T_PROJECT.PRO_N_YEARSTART <= :nSearchYear)
+        (T_PROJECT.PRO_N_YEARSTART IS NULL OR T_PROJECT.PRO_N_YEARSTART <= ' . prepNum2Update($nSearchYear) . ')
         AND (T_PROJECT.PRO_N_YEAREND IS NULL OR T_PROJECT.PRO_N_YEAREND >= :nSearchYear)
         AND (T_PROJECT.PRO_N_YEARSTART IS NOT NULL OR T_PROJECT.PRO_N_YEAREND IS NOT NULL)
     )';
-    $aParams['nSearchYear'] = $nSearchYear;
 }
 
 if (count($aSearchTagIds) > 0) {
-    $aPlaceholders = [];
-
-    foreach ($aSearchTagIds as $nIndex => $TAG_N_ID) {
-        $sParam = 'TAG_N_ID_' . $nIndex;
-        $aPlaceholders[] = ':' . $sParam;
-        $aParams[$sParam] = $TAG_N_ID;
-    }
+    $aPreparedTagIds = array_map('prepNum2Update', $aSearchTagIds);
 
     $sSql .= ' AND (
         SELECT COUNT(DISTINCT T_PROJECTTAG.TAG_N_ID)
         FROM T_PROJECTTAG
         WHERE T_PROJECTTAG.PRO_N_ID = T_PROJECT.PRO_N_ID
           AND T_PROJECTTAG.PTA_DT_SUPPRESSION IS NULL
-          AND T_PROJECTTAG.TAG_N_ID IN (' . implode(',', $aPlaceholders) . ')
-    ) = ' . count($aSearchTagIds);
+          AND T_PROJECTTAG.TAG_N_ID IN (' . implode(',', $aPreparedTagIds) . ')
+    ) = ' . prepNum2Update(count($aSearchTagIds));
 }
 
 $sSql .= ' ORDER BY T_PROJECT.PRO_N_YEARSTART DESC, T_PROJECT.PRO_CH_LABEL ASC';
 
-$oProjects = $WM_ADMIN_conn->prepare($sSql);
-$oProjects->execute($aParams);
-$aProjects = $oProjects->fetchAll();
+$aProjects = oRs($sSql, '', '', 0, '', $WM_ADMIN_conn);
 
-$oProjectTags = $WM_ADMIN_conn->query(
-    'SELECT
-        T_PROJECTTAG.PRO_N_ID,
-        T_TAG.TAG_CH_LABEL,
-        T_TAGCATEGORY.TCA_CH_COLOR
-     FROM T_PROJECTTAG
-     INNER JOIN T_TAG
-        ON T_TAG.TAG_N_ID = T_PROJECTTAG.TAG_N_ID
-       AND T_TAG.TAG_DT_SUPPRESSION IS NULL
-     INNER JOIN T_TAGCATEGORY
-        ON T_TAGCATEGORY.TCA_N_ID = T_TAG.TCA_N_ID
-       AND T_TAGCATEGORY.TCA_DT_SUPPRESSION IS NULL
-     WHERE T_PROJECTTAG.PTA_DT_SUPPRESSION IS NULL
-     ORDER BY
-        T_TAGCATEGORY.TCA_N_ORDER ASC,
-        T_TAG.TAG_N_ORDER ASC,
-        T_TAG.TAG_CH_LABEL ASC'
-);
+$aProjectTags = oRs('', __DIR__ . '/sql/catalogue/selectProjectTags.sql', '', 0, '', $WM_ADMIN_conn);
 
 $aTagsByProject = [];
 
-foreach ($oProjectTags->fetchAll() as $aTag) {
+foreach ($aProjectTags as $aTag) {
     $aTagsByProject[(int) $aTag['PRO_N_ID']][] = $aTag;
 }
 
-$oSearchTags = $WM_ADMIN_conn->query(
-    'SELECT DISTINCT
-        T_TAGCATEGORY.TCA_N_ID,
-        T_TAGCATEGORY.TCA_CH_LABEL,
-        T_TAG.TAG_N_ID,
-        T_TAG.TAG_CH_LABEL
-     FROM T_TAGCATEGORY
-     INNER JOIN T_TAG
-        ON T_TAG.TCA_N_ID = T_TAGCATEGORY.TCA_N_ID
-       AND T_TAG.TAG_DT_SUPPRESSION IS NULL
-     INNER JOIN T_PROJECTTAG
-        ON T_PROJECTTAG.TAG_N_ID = T_TAG.TAG_N_ID
-       AND T_PROJECTTAG.PTA_DT_SUPPRESSION IS NULL
-     INNER JOIN T_PROJECT
-        ON T_PROJECT.PRO_N_ID = T_PROJECTTAG.PRO_N_ID
-       AND T_PROJECT.PRO_DT_SUPPRESSION IS NULL
-     WHERE T_TAGCATEGORY.TCA_DT_SUPPRESSION IS NULL
-     ORDER BY
-        T_TAGCATEGORY.TCA_N_ORDER ASC,
-        T_TAGCATEGORY.TCA_CH_LABEL ASC,
-        T_TAG.TAG_N_ORDER ASC,
-        T_TAG.TAG_CH_LABEL ASC'
-);
+$aSearchTags = oRs('', __DIR__ . '/sql/catalogue/selectSearchTags.sql', '', 0, '', $WM_ADMIN_conn);
 $aSearchTagsByCategory = [];
 
-foreach ($oSearchTags->fetchAll() as $aTag) {
+foreach ($aSearchTags as $aTag) {
     $nCategoryId = (int) $aTag['TCA_N_ID'];
 
     if (!isset($aSearchTagsByCategory[$nCategoryId])) {
@@ -166,16 +122,10 @@ foreach ($oSearchTags->fetchAll() as $aTag) {
     $aSearchTagsByCategory[$nCategoryId]['tags'][] = $aTag;
 }
 
-$oSearchImages = $WM_ADMIN_conn->query(
-    'SELECT T_PROJECTFILE.PRO_N_ID, T_PROJECTFILE.PRF_N_ID
-     FROM T_PROJECTFILE
-     WHERE T_PROJECTFILE.PRF_DT_SUPPRESSION IS NULL
-       AND T_PROJECTFILE.PRF_BL_SEARCHIMAGE = 1
-       AND T_PROJECTFILE.PRF_CH_MIMETYPE LIKE \'image/%\''
-);
+$aSearchImages = oRs('', __DIR__ . '/sql/catalogue/selectSearchImages.sql', '', 0, '', $WM_ADMIN_conn);
 $aSearchImageByProject = [];
 
-foreach ($oSearchImages->fetchAll() as $aImage) {
+foreach ($aSearchImages as $aImage) {
     $aSearchImageByProject[(int) $aImage['PRO_N_ID']] = (int) $aImage['PRF_N_ID'];
 }
 
