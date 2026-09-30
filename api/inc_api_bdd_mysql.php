@@ -55,6 +55,13 @@ function oRs($sSql, $sFichier, $sFiltre, $bDebug, $sOption, $oConnexion)
     return $oConnexion->query($sSql)->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getIdConPdo($sTable, $sField, $sValue, &$oConn)
+{
+    $sSql = 'INSERT INTO ' . $sTable . ' (' . $sField . ') VALUES (' . prepString2Update($sValue) . ')';
+    $oConn->exec($sSql);
+    return (int) $oConn->lastInsertId();
+}
+
 function getfield($field, $table, $filter, $connexion)
 {
     $sql = 'SELECT ' . $field . ' AS v FROM ' . $table . ' ' . $filter . ' LIMIT 1';
