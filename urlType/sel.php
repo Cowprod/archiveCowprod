@@ -28,7 +28,7 @@ if ($sField !== '') {
 $sReloadUrl = $_SERVER['REQUEST_URI'] ?? '/urlType/sel.php';
 $sCallback = "updDiv('#" . $sUpdateDiv . "'," . json_encode($sReloadUrl) . ")";
 ?>
-<?php if (!isset($_GET['noAdmin'])): ?><div class="input-group p-0 m-0 w-100"><?php endif; ?>
+<?php if (!isset($_GET['noAdmin'])): ?><div class="input-group<?php echo $bSmall ? ' input-group-sm' : ''; ?> p-0 m-0 w-100"><?php endif; ?>
 <?php
 echo htmlSelectNameChange(
     'T_URLTYPE',
