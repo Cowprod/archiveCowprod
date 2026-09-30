@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../secure.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $PRO_N_ID = isset($_POST['PRO_N_ID']) ? (int) $_POST['PRO_N_ID'] : 0;
+    $PRO_N_ID = decryptId($_POST['PRO_N_ID'] ?? '', $sEncryptKey);
 
     if ($PRO_N_ID <= 0) {
         throw new RuntimeException('Projet invalide');
