@@ -290,7 +290,7 @@ require_once __DIR__ . '/top.php';
                         ?>
                         <a
                             href="/index.php?maintenance=tag&maintenanceTCA_N_ID=<?php echo urlencode(encrypt((string) $nMaintenanceCategoryId, $sEncryptKey)); ?>"
-                            class="btn btn-sm <?php echo $bMaintenanceCategoryActive ? 'btn-warning' : 'btn-light'; ?>"
+                            class="btn btn-sm text-dark <?php echo $bMaintenanceCategoryActive ? 'btn-warning' : 'btn-light'; ?>"
                             title="<?php echo (int) $aMaintenanceCategory['N_MISSING']; ?> projet<?php echo (int) $aMaintenanceCategory['N_MISSING'] > 1 ? 's' : ''; ?> concerné<?php echo (int) $aMaintenanceCategory['N_MISSING'] > 1 ? 's' : ''; ?>"
                         >Sans <?php echo htmlspecialchars(mb_strtolower((string) $aMaintenanceCategory['TCA_CH_LABEL']), ENT_QUOTES, 'UTF-8'); ?></a>
                     <?php endforeach; ?>
@@ -298,7 +298,7 @@ require_once __DIR__ . '/top.php';
                     <?php if ($nMaintenanceWithoutYear > 0): ?>
                         <a
                             href="/index.php?maintenance=year"
-                            class="btn btn-sm <?php echo $sMaintenance === 'year' ? 'btn-warning' : 'btn-light'; ?>"
+                            class="btn btn-sm text-dark <?php echo $sMaintenance === 'year' ? 'btn-warning' : 'btn-light'; ?>"
                             title="<?php echo $nMaintenanceWithoutYear; ?> projet<?php echo $nMaintenanceWithoutYear > 1 ? 's' : ''; ?> concerné<?php echo $nMaintenanceWithoutYear > 1 ? 's' : ''; ?>"
                         >Sans année</a>
                     <?php endif; ?>
@@ -306,7 +306,7 @@ require_once __DIR__ . '/top.php';
                     <?php if ($nMaintenanceWithoutUrl > 0): ?>
                         <a
                             href="/index.php?maintenance=url"
-                            class="btn btn-sm <?php echo $sMaintenance === 'url' ? 'btn-warning' : 'btn-light'; ?>"
+                            class="btn btn-sm text-dark <?php echo $sMaintenance === 'url' ? 'btn-warning' : 'btn-light'; ?>"
                             title="<?php echo $nMaintenanceWithoutUrl; ?> projet<?php echo $nMaintenanceWithoutUrl > 1 ? 's' : ''; ?> concerné<?php echo $nMaintenanceWithoutUrl > 1 ? 's' : ''; ?>"
                         >Sans URL</a>
                     <?php endif; ?>
@@ -314,7 +314,7 @@ require_once __DIR__ . '/top.php';
                     <?php if ($nMaintenanceWithoutFile > 0): ?>
                         <a
                             href="/index.php?maintenance=file"
-                            class="btn btn-sm <?php echo $sMaintenance === 'file' ? 'btn-warning' : 'btn-light'; ?>"
+                            class="btn btn-sm text-dark <?php echo $sMaintenance === 'file' ? 'btn-warning' : 'btn-light'; ?>"
                             title="<?php echo $nMaintenanceWithoutFile; ?> projet<?php echo $nMaintenanceWithoutFile > 1 ? 's' : ''; ?> concerné<?php echo $nMaintenanceWithoutFile > 1 ? 's' : ''; ?>"
                         >Sans fichier</a>
                     <?php endif; ?>
