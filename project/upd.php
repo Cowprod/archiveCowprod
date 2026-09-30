@@ -144,13 +144,13 @@ require_once __DIR__ . '/../top.php';
             </div>
 
             <div>
-                <label for="PRO_TX_DESCRIPTION" class="form-label">Description</label>
+                <label for="PRO_CH_DESCRIPTION" class="form-label">Description</label>
                 <textarea
                     class="form-control js-autosave-text"
-                    id="PRO_TX_DESCRIPTION"
-                    data-field="PRO_TX_DESCRIPTION"
+                    id="PRO_CH_DESCRIPTION"
+                    data-field="PRO_CH_DESCRIPTION"
                     rows="8"
-                ><?php echo htmlspecialchars((string) ($aProject['PRO_TX_DESCRIPTION'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
+                ><?php echo htmlspecialchars((string) ($aProject['PRO_CH_DESCRIPTION'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
             </div>
         </div>
     </div>
