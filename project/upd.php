@@ -216,12 +216,6 @@ require_once __DIR__ . '/../top.php';
                     <tbody id="tUrlBody">
                         <?php foreach ($aProjectUrls as $nUrlIndex => $aProjectUrl): ?>
                             <tr data-url-id="<?php echo htmlspecialchars(encrypt((string) $aProjectUrl['PRU_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
-                                <td class="text-center js-drag-url" style="width:38px;cursor:move;" title="Déplacer"><i class="fa fa-grip-vertical text-body-secondary"></i></td>
-                                <td class="text-center" style="width:50px;">
-                                    <button type="button" class="btn btn-danger btn-sm js-delete-url" title="Supprimer">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </td>
                                 <td>
                                     <?php
                                     $sUrlTypeHostId = 'dSelUrlTypeRow' . $nUrlIndex;
@@ -235,6 +229,28 @@ require_once __DIR__ . '/../top.php';
                                     ]);
                                     ?>
                                     <div class="input-group input-group-sm resource-edit-group">
+                                        <span class="input-group-text js-drag-url" style="cursor:move;" title="Déplacer">
+                                            <i class="fa fa-grip-vertical text-body-secondary"></i>
+                                        </span>
+
+                                        <button type="button" class="btn btn-danger js-delete-url" title="Supprimer">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+
+                                        <a
+                                            class="btn btn-dark"
+                                            href="<?php echo htmlspecialchars($aProjectUrl['PRU_CH_URL'], ENT_QUOTES, 'UTF-8'); ?>"
+                                            target="_blank"
+                                            rel="noopener"
+                                            title="Ouvrir"
+                                        >
+                                            <i class="fa fa-external-link"></i>
+                                        </a>
+
+                                        <button type="button" class="btn btn-success js-capture-url" title="Capturer cette URL">
+                                            <i class="fa fa-camera"></i>
+                                        </button>
+
                                         <span class="input-group-text">Type</span>
                                         <div
                                             id="<?php echo $sUrlTypeHostId; ?>"
@@ -267,16 +283,6 @@ require_once __DIR__ . '/../top.php';
                                             data-field="PRU_N_YEAR"
                                             value="<?php echo htmlspecialchars((string) ($aProjectUrl['PRU_N_YEAR'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
                                         >
-
-                                        <a
-                                            class="btn btn-light"
-                                            href="<?php echo htmlspecialchars($aProjectUrl['PRU_CH_URL'], ENT_QUOTES, 'UTF-8'); ?>"
-                                            target="_blank"
-                                            rel="noopener"
-                                            title="Ouvrir"
-                                        >
-                                            <i class="fa fa-external-link"></i>
-                                        </a>
                                     </div>
                                 </td>
                             </tr>
