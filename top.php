@@ -158,7 +158,7 @@ require_once __DIR__ . '/secure.php';
 <body>
 <header class="navbar navbar-expand-md border-bottom bg-body-tertiary">
     <div class="container">
-        <a class="navbar-brand" href="/index.php">archiveCowprod</a>
+        <a class="navbar-brand d-flex align-items-center" href="/index.php"><img src="/favicon.ico" alt="" width="24" height="24" class="me-2">archiveCowprod</a>
         <div class="ms-auto d-flex align-items-center gap-3">
             <span class="text-body-secondary"><?php echo htmlspecialchars(sSignature(), ENT_QUOTES, 'UTF-8'); ?></span>
             <a class="btn btn-sm btn-secondary" href="/logout.php">Déconnexion</a>
