@@ -137,7 +137,7 @@ foreach ($oTags->fetchAll() as $aTag) {
                     <table class="table table-bordered table-striped table-sm align-middle mb-0">
                         <tbody>
                             <?php foreach ($aTagsByCategory[$TCA_N_ID] as $aTag): ?>
-                                <tr data-tag-id="<?php echo (int) $aTag['TAG_N_ID']; ?>">
+                                <tr data-tag-id="<?php echo htmlspecialchars(encrypt((string) $aTag['TAG_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
                                     <td class="text-center" style="width:50px;">
                                         <button
                                             type="button"
