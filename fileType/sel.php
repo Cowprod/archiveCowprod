@@ -28,7 +28,7 @@ if ($sField !== '') {
 $sReloadUrl = $_SERVER['REQUEST_URI'] ?? '/fileType/sel.php';
 $sCallback = "updDiv('#" . $sUpdateDiv . "'," . json_encode($sReloadUrl) . ")";
 ?>
-<div class="input-group p-0 m-0 w-100">
+<?php if (!isset($_GET['noAdmin'])): ?><div class="input-group p-0 m-0 w-100"><?php endif; ?>
 <?php
 echo htmlSelectNameChange(
     'T_FILETYPE',
@@ -54,4 +54,4 @@ echo htmlSelectNameChange(
     onclick="bootBoxAdmin('Administrer les types de fichier','/fileType/index.php',<?php echo htmlspecialchars(json_encode($sCallback), ENT_QUOTES, 'UTF-8'); ?>)"
 ><i class="fa fa-cog"></i></button>
 <?php endif; ?>
-</div>
+<?php if (!isset($_GET['noAdmin'])): ?></div><?php endif; ?>
