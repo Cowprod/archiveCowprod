@@ -21,15 +21,14 @@ try {
     if (count($aWantedTagIds) > 0) {
         $aPreparedTagIds = array_map('prepNum2Update', $aWantedTagIds);
 
-        $aValidRows = $WM_ADMIN_conn->query(
-            'SELECT T_TAG.TAG_N_ID
-             FROM T_TAG
-             INNER JOIN T_TAGCATEGORY
-                ON T_TAGCATEGORY.TCA_N_ID=T_TAG.TCA_N_ID
-               AND T_TAGCATEGORY.TCA_DT_SUPPRESSION IS NULL
-             WHERE T_TAG.TAG_DT_SUPPRESSION IS NULL
-               AND T_TAG.TAG_N_ID IN (' . implode(',', $aPreparedTagIds) . ')'
-        )->fetchAll();
+        $aValidRows = oRs(
+            '',
+            __DIR__ . '/../../sql/project/selectValidTags.sql',
+            'TAG_N_IDS=' . urlencode(implode(',', $aPreparedTagIds)),
+            0,
+            '',
+            $WM_ADMIN_conn
+        );;
 
         $aValidTagIds = array_map('intval', array_column($aValidRows, 'TAG_N_ID'));
         sort($aWantedTagIds);
@@ -40,12 +39,14 @@ try {
         }
     }
 
-    $aCurrentRows = $WM_ADMIN_conn->query(
-        'SELECT PTA_N_ID,TAG_N_ID
-         FROM T_PROJECTTAG
-         WHERE PRO_N_ID=' . prepNum2Update($PRO_N_ID) . '
-           AND PTA_DT_SUPPRESSION IS NULL'
-    )->fetchAll();
+    $aCurrentRows = oRs(
+        '',
+        __DIR__ . '/../../sql/project/selectCurrentTags.sql',
+        'PRO_N_ID=' . urlencode(prepNum2Update($PRO_N_ID)),
+        0,
+        '',
+        $WM_ADMIN_conn
+    );;
 
     $aCurrentTagIds = array_map('intval', array_column($aCurrentRows, 'TAG_N_ID'));
     $aToAdd = array_values(array_diff($aWantedTagIds, $aCurrentTagIds));
