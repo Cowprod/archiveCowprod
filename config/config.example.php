@@ -7,3 +7,5 @@ $sDbPassword = '';
 
 $sStoragePath = '/chemin/vers/le/storage/archiveCowprod';
 $sStorageCachePath = '/chemin/vers/le/storage/archiveCowprod/cache';
+
+$sEncryptKey = 'toutcatoutca';
