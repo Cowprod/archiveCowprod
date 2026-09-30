@@ -339,15 +339,18 @@ require_once __DIR__ . '/../top.php';
                         <?php foreach ($aProjectFiles as $nFileIndex => $aProjectFile): ?>
                             <?php $bImage = str_starts_with((string) $aProjectFile['PRF_CH_MIMETYPE'], 'image/'); ?>
                             <tr data-file-id="<?php echo htmlspecialchars(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
-                                <td class="text-center js-drag-file" style="width:38px;cursor:move;" title="Déplacer"><i class="fa fa-grip-vertical text-body-secondary"></i></td>
-                                <td class="text-center" style="width:50px"><button type="button" class="btn btn-danger btn-sm js-delete-file"><i class="fa fa-trash"></i></button></td>
+                                <td class="text-center js-drag-file" style="width:38px;cursor:move;" title="Déplacer">
+                                    <i class="fa fa-grip-vertical text-body-secondary"></i>
+                                </td>
                                 <td class="text-center" style="width:110px">
                                     <?php if ($bImage): ?>
                                         <a href="/file.php?PRF_N_ID=<?php echo urlencode(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey)); ?>" target="_blank">
                                             <img src="/file.php?PRF_N_ID=<?php echo urlencode(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey)); ?>&thumb=1" class="img-fluid rounded" style="max-height:70px" alt="">
                                         </a>
                                     <?php else: ?>
-                                        <a class="btn btn-light btn-sm" href="/file.php?PRF_N_ID=<?php echo urlencode(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey)); ?>" target="_blank"><i class="fa fa-file"></i></a>
+                                        <a class="btn btn-dark btn-sm" href="/file.php?PRF_N_ID=<?php echo urlencode(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey)); ?>" target="_blank" title="Ouvrir le fichier">
+                                            <i class="fa fa-file"></i>
+                                        </a>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -363,6 +366,24 @@ require_once __DIR__ . '/../top.php';
                                     ]);
                                     ?>
                                     <div class="input-group input-group-sm resource-edit-group">
+                                        <button type="button" class="btn btn-danger js-delete-file" title="Supprimer">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+
+                                        <?php if ($bImage): ?>
+                                            <span class="input-group-text">Catalogue</span>
+                                            <span class="input-group-text bg-light">
+                                                <input
+                                                    class="form-check-input mt-0 js-search-image"
+                                                    type="radio"
+                                                    name="PRF_BL_SEARCHIMAGE"
+                                                    value="<?php echo htmlspecialchars(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>"
+                                                    <?php echo (int)$aProjectFile['PRF_BL_SEARCHIMAGE']===1?'checked':''; ?>
+                                                    title="Image du catalogue"
+                                                >
+                                            </span>
+                                        <?php endif; ?>
+
                                         <span class="input-group-text">Type</span>
                                         <div
                                             id="<?php echo $sFileTypeHostId; ?>"
@@ -387,25 +408,7 @@ require_once __DIR__ . '/../top.php';
                                             data-field="PRF_N_YEAR"
                                             value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_N_YEAR']??''),ENT_QUOTES,'UTF-8'); ?>"
                                         >
-
-                                        <?php if ($bImage): ?>
-                                            <span class="input-group-text">Catalogue</span>
-                                            <span class="input-group-text bg-light">
-                                                <input
-                                                    class="form-check-input mt-0 js-search-image"
-                                                    type="radio"
-                                                    name="PRF_BL_SEARCHIMAGE"
-                                                    value="<?php echo htmlspecialchars(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>"
-                                                    <?php echo (int)$aProjectFile['PRF_BL_SEARCHIMAGE']===1?'checked':''; ?>
-                                                    title="Image du catalogue"
-                                                >
-                                            </span>
-                                        <?php endif; ?>
                                     </div>
-                                    <small class="text-body-secondary">
-                                        <?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?>
-                                        · <?php echo number_format(((int)$aProjectFile['PRF_N_SIZE'])/1024,0,',',' '); ?> Ko
-                                    </small>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
