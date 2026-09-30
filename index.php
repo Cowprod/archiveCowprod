@@ -193,34 +193,63 @@ require_once __DIR__ . '/top.php';
     <form method="get" class="card mb-4">
         <div class="card-header">Recherche</div>
         <div class="card-body">
-            <div class="row g-3 align-items-end">
-                <div class="col-lg-5">
-                    <label for="q" class="form-label">Texte</label>
-                    <input type="search" class="form-control" id="q" name="q" value="<?php echo htmlspecialchars($sSearch, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Nom, description, URL, fichier…">
+            <div class="row g-2">
+                <div class="col-12 col-xl">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-search me-2"></i>Texte</span>
+                        <input
+                            type="search"
+                            class="form-control"
+                            id="q"
+                            name="q"
+                            value="<?php echo htmlspecialchars($sSearch, ENT_QUOTES, 'UTF-8'); ?>"
+                        >
+                    </div>
                 </div>
-                <div class="col-sm-4 col-lg-2">
-                    <label for="year" class="form-label">Année</label>
-                    <input type="number" min="1900" max="2100" class="form-control <?php echo $bInvalidYear ? 'is-invalid' : ''; ?>" id="year" name="year" value="<?php echo htmlspecialchars($sYear, ENT_QUOTES, 'UTF-8'); ?>">
+
+                <div class="col-sm-5 col-xl-2">
+                    <div class="input-group">
+                        <span class="input-group-text">Année</span>
+                        <input
+                            type="number"
+                            min="1900"
+                            max="2100"
+                            class="form-control <?php echo $bInvalidYear ? 'is-invalid' : ''; ?>"
+                            id="year"
+                            name="year"
+                            value="<?php echo htmlspecialchars($sYear, ENT_QUOTES, 'UTF-8'); ?>"
+                        >
+                    </div>
                 </div>
-                <div class="col-lg">
-                    <label for="tagSearch" class="form-label">Tags <span class="text-body-secondary">(tous)</span></label>
-                    <select class="form-select" id="tagSearch" name="tag[]" multiple>
-                        <?php foreach ($aSearchTagsByCategory as $aCategory): ?>
-                            <optgroup label="<?php echo htmlspecialchars($aCategory['label'], ENT_QUOTES, 'UTF-8'); ?>">
-                                <?php foreach ($aCategory['tags'] as $aTag): ?>
-                                    <option value="<?php echo (int) $aTag['TAG_N_ID']; ?>" <?php echo in_array((int) $aTag['TAG_N_ID'], $aSearchTagIds, true) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($aTag['TAG_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </optgroup>
-                        <?php endforeach; ?>
-                    </select>
+
+                <div class="col-12 col-xl-5">
+                    <div class="input-group search-tag-group">
+                        <span class="input-group-text">Tags <span class="ms-1 text-body-secondary">(tous)</span></span>
+                        <select class="form-select" id="tagSearch" name="tag[]" multiple>
+                            <?php foreach ($aSearchTagsByCategory as $aCategory): ?>
+                                <optgroup label="<?php echo htmlspecialchars($aCategory['label'], ENT_QUOTES, 'UTF-8'); ?>">
+                                    <?php foreach ($aCategory['tags'] as $aTag): ?>
+                                        <option value="<?php echo (int) $aTag['TAG_N_ID']; ?>" <?php echo in_array((int) $aTag['TAG_N_ID'], $aSearchTagIds, true) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($aTag['TAG_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </optgroup>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-auto d-flex gap-2">
-                    <button type="submit" class="btn btn-primary"><i class="fa fa-search me-2"></i>Rechercher</button>
-                    <?php if ($sSearch !== '' || $sYear !== '' || count($aSearchTagIds) > 0): ?>
-                        <a href="/index.php" class="btn btn-light" title="Effacer la recherche"><i class="fa fa-times"></i></a>
-                    <?php endif; ?>
+
+                <div class="col-auto">
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-search me-2"></i>Rechercher
+                        </button>
+                        <?php if ($sSearch !== '' || $sYear !== '' || count($aSearchTagIds) > 0): ?>
+                            <a href="/index.php" class="btn btn-light" title="Effacer la recherche">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -301,6 +330,19 @@ require_once __DIR__ . '/top.php';
         </div>
     <?php endif; ?>
 </main>
+
+<style>
+.search-tag-group .select2-container {
+    flex: 1 1 auto;
+    width: 1% !important;
+}
+
+.search-tag-group .select2-selection--multiple {
+    min-height: 42px;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+</style>
 
 <script>
 $(function () {
