@@ -272,7 +272,7 @@ require_once __DIR__ . '/top.php';
         <h1 class="h3 mb-0">Catalogue</h1>
 
         <form method="post" action="/project/trUpdProject.php">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-success">
                 <i class="fa fa-plus me-2"></i>Nouveau projet
             </button>
         </form>
@@ -315,7 +315,7 @@ require_once __DIR__ . '/top.php';
                     <?php endforeach; ?>
                 </select>
 
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-success">
                     <i class="fa fa-search me-2"></i>Rechercher
                 </button>
                 <?php if ($sSearch !== '' || $sYear !== '' || count($aSearchTagIds) > 0): ?>
