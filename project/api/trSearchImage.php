@@ -12,7 +12,7 @@ try {
         0,
         '',
         $WM_ADMIN_conn
-    );;
+    );
 
     $aFile = $aFiles[0] ?? false;
 
@@ -31,7 +31,7 @@ try {
         0,
         '',
         $WM_ADMIN_conn
-    );;
+    );
 
     foreach ($aImages as $aImage) {
         $nFileId = (int) $aImage['PRF_N_ID'];
