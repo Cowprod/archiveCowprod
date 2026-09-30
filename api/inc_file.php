@@ -170,6 +170,129 @@ function archiveInsertProjectFile(
     return $PRF_N_ID;
 }
 
+function archiveFindChromiumBinary(): string
+{
+    global $sChromiumPath;
+
+    $aCandidates = [];
+
+    if (isset($sChromiumPath) && trim((string) $sChromiumPath) !== '') {
+        $aCandidates[] = trim((string) $sChromiumPath);
+    }
+
+    $aCandidates = array_merge($aCandidates, [
+        '/usr/bin/chromium',
+        '/usr/bin/chromium-browser',
+        '/usr/bin/google-chrome',
+        '/usr/bin/google-chrome-stable',
+    ]);
+
+    foreach ($aCandidates as $sCandidate) {
+        if (is_file($sCandidate) && is_executable($sCandidate)) {
+            return $sCandidate;
+        }
+    }
+
+    throw new RuntimeException('Chromium/Chrome introuvable sur le serveur');
+}
+
+function archiveCaptureUrlScreenshot(string $sUrl, string $sPath): void
+{
+    $aUrl = parse_url($sUrl);
+
+    if (
+        !is_array($aUrl)
+        || !isset($aUrl['scheme'])
+        || !in_array(strtolower((string) $aUrl['scheme']), ['http', 'https'], true)
+    ) {
+        throw new RuntimeException('URL non compatible avec la capture');
+    }
+
+    if (!function_exists('proc_open')) {
+        throw new RuntimeException('proc_open est désactivé sur le serveur');
+    }
+
+    $sChromium = archiveFindChromiumBinary();
+
+    $sCommand =
+        escapeshellarg($sChromium)
+        . ' --headless'
+        . ' --disable-gpu'
+        . ' --disable-dev-shm-usage'
+        . ' --hide-scrollbars'
+        . ' --window-size=1440,1000'
+        . ' --virtual-time-budget=5000'
+        . ' --screenshot=' . escapeshellarg($sPath)
+        . ' ' . escapeshellarg($sUrl);
+
+    $aDescriptors = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w'],
+    ];
+
+    $oProcess = proc_open($sCommand, $aDescriptors, $aPipes);
+
+    if (!is_resource($oProcess)) {
+        throw new RuntimeException('Impossible de lancer Chromium');
+    }
+
+    fclose($aPipes[0]);
+    stream_set_blocking($aPipes[1], false);
+    stream_set_blocking($aPipes[2], false);
+
+    $sOutput = '';
+    $sError = '';
+    $fStart = microtime(true);
+    $nExitCode = null;
+
+    while (true) {
+        $sOutput .= stream_get_contents($aPipes[1]);
+        $sError .= stream_get_contents($aPipes[2]);
+
+        $aStatus = proc_get_status($oProcess);
+
+        if (!$aStatus['running']) {
+            $nExitCode = (int) $aStatus['exitcode'];
+            break;
+        }
+
+        if ((microtime(true) - $fStart) > 30) {
+            proc_terminate($oProcess, 9);
+            $nExitCode = -1;
+            break;
+        }
+
+        usleep(100000);
+    }
+
+    $sOutput .= stream_get_contents($aPipes[1]);
+    $sError .= stream_get_contents($aPipes[2]);
+
+    fclose($aPipes[1]);
+    fclose($aPipes[2]);
+    proc_close($oProcess);
+
+    if (
+        $nExitCode !== 0
+        || !is_file($sPath)
+        || filesize($sPath) === 0
+    ) {
+        @unlink($sPath);
+
+        $sDetail = trim($sError !== '' ? $sError : $sOutput);
+
+        if (strlen($sDetail) > 500) {
+            $sDetail = substr($sDetail, 0, 500);
+        }
+
+        throw new RuntimeException(
+            'La capture d écran a échoué'
+            . ($sDetail !== '' ? ' : ' . $sDetail : '')
+        );
+    }
+}
+
 function archiveValidateYear(?string $sYear): ?int
 {
     $sYear = trim((string) $sYear);
