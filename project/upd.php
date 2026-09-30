@@ -411,6 +411,52 @@ require_once __DIR__ . '/../top.php';
     </div>
 </main>
 
+<style>
+.resource-type-host {
+    flex: 0 1 240px;
+    min-width: 180px;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+.resource-type-host > .input-group {
+    height: 100%;
+    flex-wrap: nowrap;
+}
+
+.resource-type-host .form-select,
+.resource-type-host .btn {
+    height: 100%;
+    border-radius: 0 !important;
+}
+
+.resource-url,
+.resource-file {
+    flex: 2 1 300px !important;
+    min-width: 180px;
+}
+
+.resource-label {
+    flex: 1 1 180px !important;
+    min-width: 120px;
+}
+
+.resource-year {
+    flex: 0 0 95px !important;
+    max-width: 95px;
+}
+
+.resource-edit-group {
+    flex-wrap: nowrap;
+}
+
+.resource-edit-group .resource-type-host {
+    flex-basis: 180px;
+    min-width: 150px;
+}
+</style>
+
 <script>
 $(function () {
     let nPendingSave = 0;
