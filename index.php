@@ -148,64 +148,48 @@ require_once __DIR__ . '/top.php';
     <form method="get" class="card mb-4">
         <div class="card-header">Recherche</div>
         <div class="card-body">
-            <div class="row g-2">
-                <div class="col-12 col-xl">
-                    <div class="input-group">
-                        <span class="input-group-text w-25"><i class="fa fa-search me-2"></i>Texte</span>
-                        <input
-                            type="search"
-                            class="form-control"
-                            id="q"
-                            name="q"
-                            value="<?php echo htmlspecialchars($sSearch, ENT_QUOTES, 'UTF-8'); ?>"
-                        >
-                    </div>
-                </div>
+            <div class="input-group search-input-group">
+                <span class="input-group-text"><i class="fa fa-search me-2"></i>Texte</span>
+                <input
+                    type="search"
+                    class="form-control search-text"
+                    id="q"
+                    name="q"
+                    value="<?php echo htmlspecialchars($sSearch, ENT_QUOTES, 'UTF-8'); ?>"
+                >
 
-                <div class="col-sm-5 col-xl-2">
-                    <div class="input-group">
-                        <span class="input-group-text w-35">Année</span>
-                        <input
-                            type="number"
-                            min="1900"
-                            max="2100"
-                            class="form-control <?php echo $bInvalidYear ? 'is-invalid' : ''; ?>"
-                            id="year"
-                            name="year"
-                            value="<?php echo htmlspecialchars($sYear, ENT_QUOTES, 'UTF-8'); ?>"
-                        >
-                    </div>
-                </div>
+                <span class="input-group-text">Année</span>
+                <input
+                    type="number"
+                    min="1900"
+                    max="2100"
+                    class="form-control search-year <?php echo $bInvalidYear ? 'is-invalid' : ''; ?>"
+                    id="year"
+                    name="year"
+                    value="<?php echo htmlspecialchars($sYear, ENT_QUOTES, 'UTF-8'); ?>"
+                >
 
-                <div class="col-12 col-xl-5">
-                    <div class="input-group search-tag-group">
-                        <span class="input-group-text w-25">Tags <span class="ms-1 text-body-secondary">(tous)</span></span>
-                        <select class="form-select" id="tagSearch" name="tag[]" multiple>
-                            <?php foreach ($aSearchTagsByCategory as $aCategory): ?>
-                                <optgroup label="<?php echo htmlspecialchars($aCategory['label'], ENT_QUOTES, 'UTF-8'); ?>">
-                                    <?php foreach ($aCategory['tags'] as $aTag): ?>
-                                        <option value="<?php echo htmlspecialchars(encrypt((string) $aTag['TAG_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>" <?php echo in_array((int) $aTag['TAG_N_ID'], $aSearchTagIds, true) ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($aTag['TAG_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </optgroup>
+                <span class="input-group-text">Tags <span class="ms-1 text-body-secondary">(tous)</span></span>
+                <select class="form-select" id="tagSearch" name="tag[]" multiple>
+                    <?php foreach ($aSearchTagsByCategory as $aCategory): ?>
+                        <optgroup label="<?php echo htmlspecialchars($aCategory['label'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <?php foreach ($aCategory['tags'] as $aTag): ?>
+                                <option value="<?php echo htmlspecialchars(encrypt((string) $aTag['TAG_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>" <?php echo in_array((int) $aTag['TAG_N_ID'], $aSearchTagIds, true) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($aTag['TAG_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
                             <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
+                        </optgroup>
+                    <?php endforeach; ?>
+                </select>
 
-                <div class="col-auto">
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-search me-2"></i>Rechercher
-                        </button>
-                        <?php if ($sSearch !== '' || $sYear !== '' || count($aSearchTagIds) > 0): ?>
-                            <a href="/index.php" class="btn btn-light" title="Effacer la recherche">
-                                <i class="fa fa-times"></i>
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-search me-2"></i>Rechercher
+                </button>
+                <?php if ($sSearch !== '' || $sYear !== '' || count($aSearchTagIds) > 0): ?>
+                    <a href="/index.php" class="btn btn-light" title="Effacer la recherche">
+                        <i class="fa fa-times"></i>
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </form>
@@ -287,15 +271,19 @@ require_once __DIR__ . '/top.php';
 </main>
 
 <style>
-.search-tag-group .select2-container {
-    flex: 1 1 auto;
-    width: 1% !important;
+.search-input-group .search-text {
+    flex: 2 1 260px;
 }
 
-.search-tag-group .select2-selection--multiple {
-    min-height: 42px;
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
+.search-input-group .search-year {
+    flex: 0 0 110px;
+    max-width: 110px;
+}
+
+.search-input-group #tagSearch + .select2-container {
+    flex: 2 1 320px;
+    width: auto !important;
+    min-width: 220px;
 }
 </style>
 
