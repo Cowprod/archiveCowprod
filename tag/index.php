@@ -80,7 +80,7 @@ foreach ($oTags->fetchAll() as $aTag) {
     <?php foreach ($aCategories as $aCategory): ?>
         <?php $TCA_N_ID = (int) $aCategory['TCA_N_ID']; ?>
 
-        <div class="card mb-3" data-category-id="<?php echo $TCA_N_ID; ?>">
+        <div class="card mb-3" data-category-id="<?php echo htmlspecialchars(encrypt((string) $TCA_N_ID, $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
             <div class="card-header">
                 <div class="input-group">
                     <button
@@ -117,7 +117,7 @@ foreach ($oTags->fetchAll() as $aTag) {
 
             <div class="card-body">
                 <form class="fAddTag mb-3" autocomplete="off">
-                    <input type="hidden" name="TCA_N_ID" value="<?php echo $TCA_N_ID; ?>">
+                    <input type="hidden" name="TCA_N_ID" value="<?php echo htmlspecialchars(encrypt((string) $TCA_N_ID, $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
                     <div class="input-group">
                         <span class="input-group-text">Tag</span>
                         <input
