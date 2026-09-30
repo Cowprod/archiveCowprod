@@ -831,6 +831,45 @@ $(function () {
         });
     });
 
+    $('.js-capture-url').on('click', function () {
+        const $button = $(this);
+        const $row = $button.closest('[data-url-id]');
+        const $icon = $button.find('i');
+
+        $button.prop('disabled', true);
+        $icon.removeClass('fa-camera').addClass('fa-spinner fa-spin');
+        setSaveStatus('Capture de l’URL…', false);
+
+        $.ajax({
+            url: '/projectUrl/trCaptureProjectUrl.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                PRU_N_ID: $row.data('url-id')
+            }
+        })
+        .done(function (data) {
+            if (data.success === true) {
+                window.location.reload();
+                return;
+            }
+
+            setSaveStatus(data.message || 'Erreur lors de la capture', true);
+        })
+        .fail(function (xhr) {
+            setSaveStatus(
+                xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : 'Erreur lors de la capture',
+                true
+            );
+        })
+        .always(function () {
+            $button.prop('disabled', false);
+            $icon.removeClass('fa-spinner fa-spin').addClass('fa-camera');
+        });
+    });
+
     function getClipboardFileType() {
         let nType = $('#FTY_N_ID').val();
 
