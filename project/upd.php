@@ -188,40 +188,26 @@ require_once __DIR__ . '/../top.php';
         <div class="card-header">URLs</div>
         <div class="card-body">
             <form id="fAddUrl" class="mb-3">
-                <div class="row g-2">
-                    <div class="col-md-3">
-                        <div class="input-group h-100">
-                            <span class="input-group-text w-25">Type</span>
-                            <div
-                                id="dSelUrlTypeAdd"
-                                class="input-group-text p-0 flex-grow-1"
-                                data-sel-url="/urlType/sel.php?sId=UTY_N_ID&amp;updateDiv=dSelUrlTypeAdd&amp;required=1"
-                            ></div>
-                        </div>
-                    </div>
-                    <div class="col-md">
-                        <div class="input-group h-100">
-                            <span class="input-group-text w-25">URL</span>
-                            <input type="url" class="form-control" name="PRU_CH_URL" required>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="input-group h-100">
-                            <span class="input-group-text w-25">Libellé</span>
-                            <input type="text" class="form-control" name="PRU_CH_LABEL">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="input-group h-100">
-                            <span class="input-group-text w-35">Année</span>
-                            <input type="number" min="1900" max="2100" class="form-control" name="PRU_N_YEAR">
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fa fa-plus-circle me-2"></i>Ajouter
-                        </button>
-                    </div>
+                <div class="input-group">
+                    <span class="input-group-text">Type</span>
+                    <div
+                        id="dSelUrlTypeAdd"
+                        class="input-group-text p-0 resource-type-host"
+                        data-sel-url="/urlType/sel.php?sId=UTY_N_ID&amp;updateDiv=dSelUrlTypeAdd&amp;required=1"
+                    ></div>
+
+                    <span class="input-group-text">URL</span>
+                    <input type="url" class="form-control resource-url" name="PRU_CH_URL" required>
+
+                    <span class="input-group-text">Libellé</span>
+                    <input type="text" class="form-control resource-label" name="PRU_CH_LABEL">
+
+                    <span class="input-group-text">Année</span>
+                    <input type="number" min="1900" max="2100" class="form-control resource-year" name="PRU_N_YEAR">
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-plus-circle me-2"></i>Ajouter
+                    </button>
                 </div>
             </form>
 
@@ -310,36 +296,26 @@ require_once __DIR__ . '/../top.php';
         </div>
         <div class="card-body">
             <form id="fAddFile" enctype="multipart/form-data" class="mb-3">
-                <div class="row g-2 align-items-stretch">
-                    <div class="col-md-3">
-                        <div class="input-group h-100">
-                            <span class="input-group-text w-25">Type</span>
-                            <div
-                                id="dSelFileTypeAdd"
-                                class="input-group-text p-0 flex-grow-1"
-                                data-sel-url="/fileType/sel.php?sId=FTY_N_ID&amp;updateDiv=dSelFileTypeAdd&amp;required=1"
-                            ></div>
-                        </div>
-                    </div>
-                    <div class="col-md">
-                        <div class="input-group h-100">
-                            <span class="input-group-text w-25">Fichier</span>
-                            <input type="file" class="form-control" name="file" id="PRF_FILE" required>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="input-group h-100">
-                            <span class="input-group-text w-35">Libellé</span>
-                            <input type="text" class="form-control" name="PRF_CH_LABEL">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="input-group h-100">
-                            <span class="input-group-text w-35">Année</span>
-                            <input type="number" min="1900" max="2100" class="form-control" name="PRF_N_YEAR">
-                        </div>
-                    </div>
-                    <div class="col-auto"><button type="submit" class="btn btn-success h-100"><i class="fa fa-upload me-2"></i>Ajouter</button></div>
+                <div class="input-group">
+                    <span class="input-group-text">Type</span>
+                    <div
+                        id="dSelFileTypeAdd"
+                        class="input-group-text p-0 resource-type-host"
+                        data-sel-url="/fileType/sel.php?sId=FTY_N_ID&amp;updateDiv=dSelFileTypeAdd&amp;required=1"
+                    ></div>
+
+                    <span class="input-group-text">Fichier</span>
+                    <input type="file" class="form-control resource-file" name="file" id="PRF_FILE" required>
+
+                    <span class="input-group-text">Libellé</span>
+                    <input type="text" class="form-control resource-label" name="PRF_CH_LABEL">
+
+                    <span class="input-group-text">Année</span>
+                    <input type="number" min="1900" max="2100" class="form-control resource-year" name="PRF_N_YEAR">
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-upload me-2"></i>Ajouter
+                    </button>
                 </div>
             </form>
 
