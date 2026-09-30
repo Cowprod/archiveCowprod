@@ -7,7 +7,7 @@ require_once __DIR__ . '/secure.php';
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>archiveCowprod</title>
+    <title>archiveCowprod</title>\n    <link rel="icon" href="/favicon.ico" sizes="any">
     <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
@@ -86,3 +86,18 @@ require_once __DIR__ . '/secure.php';
         </div>
     </div>
 </header>
+
+<div id="dDumy" class="d-none"></div>
+
+<div class="modal fade" id="dAdminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adminModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body" id="modalAdminBody"></div>
+            <div class="modal-footer d-none" id="adminModalFooter"></div>
+        </div>
+    </div>
+</div>
