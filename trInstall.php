@@ -41,6 +41,18 @@ function installError(string $sMessage, bool $bAjax): never
     exit;
 }
 
+function installPrepNum2Update($sNum)
+{
+    $sNum = str_replace(',', '.', (string) $sNum);
+    return ($sNum === '' || !is_numeric($sNum)) ? 'null' : $sNum;
+}
+
+function installPrepString2Update($sString)
+{
+    $sString = str_replace("\\", "\\\\", (string) $sString);
+    return "'" . str_replace("'", "''", $sString) . "'";
+}
+
 function ensureWritableDirectory(string $sPath, string $sLabel): void
 {
     if (!is_dir($sPath)) {
@@ -128,25 +140,12 @@ try {
 
     $WM_ADMIN_conn->beginTransaction();
 
-    $oUserInsert = $WM_ADMIN_conn->prepare(
-        'INSERT INTO T_USER (
-            USR_CH_LOGIN,
-            USR_CH_PASSWORD,
-            USR_DT_CREATION,
-            USR_CH_CREATION
-        ) VALUES (
-            :USR_CH_LOGIN,
-            :USR_CH_PASSWORD,
-            NOW(),
-            :USR_CH_CREATION
-        )'
+    $WM_ADMIN_conn->exec(
+        'INSERT INTO T_USER (USR_CH_LOGIN,USR_CH_PASSWORD,USR_DT_CREATION,USR_CH_CREATION)
+         VALUES (' . installPrepString2Update($sUser) . ','
+         . installPrepString2Update(password_hash($sPassword, PASSWORD_DEFAULT)) . ',NOW(),'
+         . installPrepString2Update($sUser) . ')'
     );
-
-    $oUserInsert->execute([
-        'USR_CH_LOGIN' => $sUser,
-        'USR_CH_PASSWORD' => password_hash($sPassword, PASSWORD_DEFAULT),
-        'USR_CH_CREATION' => $sUser,
-    ]);
 
     $aUrlTypes = [
         'Production',
@@ -157,23 +156,11 @@ try {
         'Documentation',
     ];
 
-    $oUrlTypeInsert = $WM_ADMIN_conn->prepare(
-        'INSERT INTO T_URLTYPE (
-            UTY_CH_LABEL,
-            UTY_DT_CREATION,
-            UTY_CH_CREATION
-        ) VALUES (
-            :UTY_CH_LABEL,
-            NOW(),
-            :UTY_CH_CREATION
-        )'
-    );
-
     foreach ($aUrlTypes as $sLabel) {
-        $oUrlTypeInsert->execute([
-            'UTY_CH_LABEL' => $sLabel,
-            'UTY_CH_CREATION' => $sUser,
-        ]);
+        $WM_ADMIN_conn->exec(
+            'INSERT INTO T_URLTYPE (UTY_CH_LABEL,UTY_DT_CREATION,UTY_CH_CREATION)
+             VALUES (' . installPrepString2Update($sLabel) . ',NOW(),' . installPrepString2Update($sUser) . ')'
+        );
     }
 
     $aFileTypes = [
@@ -184,23 +171,11 @@ try {
         'Autre',
     ];
 
-    $oFileTypeInsert = $WM_ADMIN_conn->prepare(
-        'INSERT INTO T_FILETYPE (
-            FTY_CH_LABEL,
-            FTY_DT_CREATION,
-            FTY_CH_CREATION
-        ) VALUES (
-            :FTY_CH_LABEL,
-            NOW(),
-            :FTY_CH_CREATION
-        )'
-    );
-
     foreach ($aFileTypes as $sLabel) {
-        $oFileTypeInsert->execute([
-            'FTY_CH_LABEL' => $sLabel,
-            'FTY_CH_CREATION' => $sUser,
-        ]);
+        $WM_ADMIN_conn->exec(
+            'INSERT INTO T_FILETYPE (FTY_CH_LABEL,FTY_DT_CREATION,FTY_CH_CREATION)
+             VALUES (' . installPrepString2Update($sLabel) . ',NOW(),' . installPrepString2Update($sUser) . ')'
+        );
     }
 
     $aTagCategories = [
@@ -211,29 +186,14 @@ try {
         ['État', 'secondary', 50],
     ];
 
-    $oTagCategoryInsert = $WM_ADMIN_conn->prepare(
-        'INSERT INTO T_TAGCATEGORY (
-            TCA_CH_LABEL,
-            TCA_CH_COLOR,
-            TCA_N_ORDER,
-            TCA_DT_CREATION,
-            TCA_CH_CREATION
-        ) VALUES (
-            :TCA_CH_LABEL,
-            :TCA_CH_COLOR,
-            :TCA_N_ORDER,
-            NOW(),
-            :TCA_CH_CREATION
-        )'
-    );
-
     foreach ($aTagCategories as $aCategory) {
-        $oTagCategoryInsert->execute([
-            'TCA_CH_LABEL' => $aCategory[0],
-            'TCA_CH_COLOR' => $aCategory[1],
-            'TCA_N_ORDER' => $aCategory[2],
-            'TCA_CH_CREATION' => $sUser,
-        ]);
+        $WM_ADMIN_conn->exec(
+            'INSERT INTO T_TAGCATEGORY (TCA_CH_LABEL,TCA_CH_COLOR,TCA_N_ORDER,TCA_DT_CREATION,TCA_CH_CREATION)
+             VALUES (' . installPrepString2Update($aCategory[0]) . ','
+             . installPrepString2Update($aCategory[1]) . ','
+             . installPrepNum2Update($aCategory[2]) . ',NOW(),'
+             . installPrepString2Update($sUser) . ')'
+        );
     }
 
     $WM_ADMIN_conn->commit();
