@@ -3,13 +3,19 @@ require_once __DIR__ . '/../secure.php';
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    $UTY_N_ID = decryptId($_POST['UTY_N_ID'] ?? '', $sEncryptKey);
     $sLabel = trim((string) ($_POST['UTY_CH_LABEL'] ?? ''));
 
     if ($sLabel === '') {
         throw new RuntimeException('Type invalide');
     }
 
+    if (!isset($_POST['UTY_N_ID']) || trim((string) $_POST['UTY_N_ID']) === '') {
+        $WM_ADMIN_conn->exec('INSERT INTO T_URLTYPE (UTY_CH_LABEL,UTY_DT_CREATION,UTY_CH_CREATION) VALUES (' . prepString2Update($sLabel) . ',NOW(),' . prepString2Update(sSignature()) . ')');
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    $UTY_N_ID = decryptId($_POST['UTY_N_ID'], $sEncryptKey);
     $WM_ADMIN_conn->beginTransaction();
     historiseTable('T_URLTYPE', 'UTY', $UTY_N_ID, $WM_ADMIN_conn);
 
