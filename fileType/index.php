@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__.'/../secure.php';
-$a=$WM_ADMIN_conn->query('SELECT T_FILETYPE.FTY_N_ID,T_FILETYPE.FTY_CH_LABEL FROM T_FILETYPE WHERE T_FILETYPE.FTY_DT_SUPPRESSION IS NULL ORDER BY T_FILETYPE.FTY_CH_LABEL')->fetchAll();
+$a=oRs('SELECT FTY_N_ID,FTY_CH_LABEL FROM T_FILETYPE WHERE FTY_DT_SUPPRESSION IS NULL ORDER BY FTY_CH_LABEL','','',0,'',$WM_ADMIN_conn);
 ?><!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet">
 <style>.autosave-warning{border-color:var(--bs-warning)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-warning-rgb),.25)!important}.autosave-success{border-color:var(--bs-success)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-success-rgb),.25)!important}.autosave-danger{border-color:var(--bs-danger)!important;box-shadow:0 0 0 .15rem rgba(var(--bs-danger-rgb),.25)!important}</style></head><body>
