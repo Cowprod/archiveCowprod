@@ -222,7 +222,7 @@ require_once __DIR__ . '/../top.php';
                                         <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
-                                <td style="width:180px;">
+                                <td>
                                     <?php
                                     $sUrlTypeHostId = 'dSelUrlTypeRow' . $nUrlIndex;
                                     $sUrlTypeSelUrl = '/urlType/sel.php?' . http_build_query([
@@ -234,50 +234,50 @@ require_once __DIR__ . '/../top.php';
                                         'noAdmin' => '1',
                                     ]);
                                     ?>
-                                    <div
-                                        id="<?php echo $sUrlTypeHostId; ?>"
-                                        class="input-group-text p-0 w-100"
-                                        data-sel-url="<?php echo htmlspecialchars($sUrlTypeSelUrl, ENT_QUOTES, 'UTF-8'); ?>"
-                                    ></div>
-                                </td>
-                                <td>
-                                    <input
-                                        type="url"
-                                        class="form-control form-control-sm js-url-text"
-                                        data-field="PRU_CH_URL"
-                                        value="<?php echo htmlspecialchars($aProjectUrl['PRU_CH_URL'], ENT_QUOTES, 'UTF-8'); ?>"
-                                    >
-                                </td>
-                                <td style="width:240px;">
-                                    <input
-                                        type="text"
-                                        class="form-control form-control-sm js-url-text"
-                                        data-field="PRU_CH_LABEL"
-                                        placeholder="Libellé"
-                                        value="<?php echo htmlspecialchars((string) ($aProjectUrl['PRU_CH_LABEL'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
-                                    >
-                                </td>
-                                <td style="width:100px;">
-                                    <input
-                                        type="number"
-                                        min="1900"
-                                        max="2100"
-                                        class="form-control form-control-sm js-url-change"
-                                        data-field="PRU_N_YEAR"
-                                        placeholder="Année"
-                                        value="<?php echo htmlspecialchars((string) ($aProjectUrl['PRU_N_YEAR'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
-                                    >
-                                </td>
-                                <td class="text-center" style="width:50px;">
-                                    <a
-                                        class="btn btn-light btn-sm"
-                                        href="<?php echo htmlspecialchars($aProjectUrl['PRU_CH_URL'], ENT_QUOTES, 'UTF-8'); ?>"
-                                        target="_blank"
-                                        rel="noopener"
-                                        title="Ouvrir"
-                                    >
-                                        <i class="fa fa-external-link"></i>
-                                    </a>
+                                    <div class="input-group input-group-sm resource-edit-group">
+                                        <span class="input-group-text">Type</span>
+                                        <div
+                                            id="<?php echo $sUrlTypeHostId; ?>"
+                                            class="input-group-text p-0 resource-type-host"
+                                            data-sel-url="<?php echo htmlspecialchars($sUrlTypeSelUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                        ></div>
+
+                                        <span class="input-group-text">URL</span>
+                                        <input
+                                            type="url"
+                                            class="form-control js-url-text resource-url"
+                                            data-field="PRU_CH_URL"
+                                            value="<?php echo htmlspecialchars($aProjectUrl['PRU_CH_URL'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        >
+
+                                        <span class="input-group-text">Libellé</span>
+                                        <input
+                                            type="text"
+                                            class="form-control js-url-text resource-label"
+                                            data-field="PRU_CH_LABEL"
+                                            value="<?php echo htmlspecialchars((string) ($aProjectUrl['PRU_CH_LABEL'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                        >
+
+                                        <span class="input-group-text">Année</span>
+                                        <input
+                                            type="number"
+                                            min="1900"
+                                            max="2100"
+                                            class="form-control js-url-change resource-year"
+                                            data-field="PRU_N_YEAR"
+                                            value="<?php echo htmlspecialchars((string) ($aProjectUrl['PRU_N_YEAR'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                        >
+
+                                        <a
+                                            class="btn btn-light"
+                                            href="<?php echo htmlspecialchars($aProjectUrl['PRU_CH_URL'], ENT_QUOTES, 'UTF-8'); ?>"
+                                            target="_blank"
+                                            rel="noopener"
+                                            title="Ouvrir"
+                                        >
+                                            <i class="fa fa-external-link"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -344,7 +344,7 @@ require_once __DIR__ . '/../top.php';
                                         <a class="btn btn-light btn-sm" href="/file.php?PRF_N_ID=<?php echo urlencode(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey)); ?>" target="_blank"><i class="fa fa-file"></i></a>
                                     <?php endif; ?>
                                 </td>
-                                <td style="width:170px">
+                                <td>
                                     <?php
                                     $sFileTypeHostId = 'dSelFileTypeRow' . $nFileIndex;
                                     $sFileTypeSelUrl = '/fileType/sel.php?' . http_build_query([
@@ -356,18 +356,50 @@ require_once __DIR__ . '/../top.php';
                                         'noAdmin' => '1',
                                     ]);
                                     ?>
-                                    <div
-                                        id="<?php echo $sFileTypeHostId; ?>"
-                                        class="input-group-text p-0 w-100"
-                                        data-sel-url="<?php echo htmlspecialchars($sFileTypeSelUrl, ENT_QUOTES, 'UTF-8'); ?>"
-                                    ></div>
-                                </td>
-                                <td><input type="text" class="form-control form-control-sm js-file-text" data-field="PRF_CH_LABEL" placeholder="<?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?>" value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_CH_LABEL']??''),ENT_QUOTES,'UTF-8'); ?>"><small class="text-body-secondary"><?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?> · <?php echo number_format(((int)$aProjectFile['PRF_N_SIZE'])/1024,0,',',' '); ?> Ko</small></td>
-                                <td style="width:100px"><input type="number" min="1900" max="2100" class="form-control form-control-sm js-file-change" data-field="PRF_N_YEAR" placeholder="Année" value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_N_YEAR']??''),ENT_QUOTES,'UTF-8'); ?>"></td>
-                                <td class="text-center" style="width:90px">
-                                    <?php if ($bImage): ?>
-                                        <div class="form-check d-inline-block" title="Image du catalogue"><input class="form-check-input js-search-image" type="radio" name="PRF_BL_SEARCHIMAGE" value="<?php echo htmlspecialchars(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>" <?php echo (int)$aProjectFile['PRF_BL_SEARCHIMAGE']===1?'checked':''; ?>></div>
-                                    <?php endif; ?>
+                                    <div class="input-group input-group-sm resource-edit-group">
+                                        <span class="input-group-text">Type</span>
+                                        <div
+                                            id="<?php echo $sFileTypeHostId; ?>"
+                                            class="input-group-text p-0 resource-type-host"
+                                            data-sel-url="<?php echo htmlspecialchars($sFileTypeSelUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                        ></div>
+
+                                        <span class="input-group-text">Libellé</span>
+                                        <input
+                                            type="text"
+                                            class="form-control js-file-text resource-label"
+                                            data-field="PRF_CH_LABEL"
+                                            value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_CH_LABEL']??''),ENT_QUOTES,'UTF-8'); ?>"
+                                        >
+
+                                        <span class="input-group-text">Année</span>
+                                        <input
+                                            type="number"
+                                            min="1900"
+                                            max="2100"
+                                            class="form-control js-file-change resource-year"
+                                            data-field="PRF_N_YEAR"
+                                            value="<?php echo htmlspecialchars((string)($aProjectFile['PRF_N_YEAR']??''),ENT_QUOTES,'UTF-8'); ?>"
+                                        >
+
+                                        <?php if ($bImage): ?>
+                                            <span class="input-group-text">Catalogue</span>
+                                            <span class="input-group-text bg-light">
+                                                <input
+                                                    class="form-check-input mt-0 js-search-image"
+                                                    type="radio"
+                                                    name="PRF_BL_SEARCHIMAGE"
+                                                    value="<?php echo htmlspecialchars(encrypt((string) $aProjectFile['PRF_N_ID'], $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>"
+                                                    <?php echo (int)$aProjectFile['PRF_BL_SEARCHIMAGE']===1?'checked':''; ?>
+                                                    title="Image du catalogue"
+                                                >
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <small class="text-body-secondary">
+                                        <?php echo htmlspecialchars($aProjectFile['PRF_CH_FILENAME'],ENT_QUOTES,'UTF-8'); ?>
+                                        · <?php echo number_format(((int)$aProjectFile['PRF_N_SIZE'])/1024,0,',',' '); ?> Ko
+                                    </small>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
