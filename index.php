@@ -5,6 +5,14 @@ require_once __DIR__ . '/secure.php';
 $sSearch = trim((string) ($_GET['q'] ?? ''));
 $sYear = trim((string) ($_GET['year'] ?? ''));
 $aSearchTagIds = $_GET['tag'] ?? [];
+$sMaintenanceTCAId = trim((string) ($_GET['maintenanceTCA_N_ID'] ?? ''));
+$nMaintenanceTCAId = null;
+$aMaintenanceProjects = [];
+$sMaintenanceCategoryLabel = '';
+
+if ($sMaintenanceTCAId !== '' && $sMaintenanceTCAId !== 'null') {
+    $nMaintenanceTCAId = decryptId($sMaintenanceTCAId, $sEncryptKey);
+}
 
 if (!is_array($aSearchTagIds)) {
     $aSearchTagIds = [$aSearchTagIds];
@@ -122,6 +130,26 @@ foreach ($aSearchTags as $aTag) {
     }
 
     $aSearchTagsByCategory[$nCategoryId]['tags'][] = $aTag;
+}
+
+if ($nMaintenanceTCAId !== null) {
+    $sMaintenanceCategoryLabel = (string) getfield(
+        'TCA_CH_LABEL',
+        'T_TAGCATEGORY',
+        'WHERE TCA_N_ID=' . prepNum2Update($nMaintenanceTCAId) . ' AND TCA_DT_SUPPRESSION IS NULL',
+        $WM_ADMIN_conn
+    );
+
+    if ($sMaintenanceCategoryLabel !== '') {
+        $aMaintenanceProjects = oRs(
+            '',
+            __DIR__ . '/maintenanceProjectWithoutTag.sql',
+            'TCA_N_ID=' . prepNum2Update($nMaintenanceTCAId),
+            0,
+            '',
+            $WM_ADMIN_conn
+        );
+    }
 }
 
 $aSearchImages = oRs('', __DIR__ . '/catalogueSearchImage.sql', '', 0, '', $WM_ADMIN_conn);
@@ -268,6 +296,83 @@ require_once __DIR__ . '/top.php';
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
+
+    <div class="card mt-4">
+        <div class="card-header">Maintenance</div>
+        <div class="card-body">
+            <form method="get" class="mb-0">
+                <?php if ($sSearch !== ''): ?>
+                    <input type="hidden" name="q" value="<?php echo htmlspecialchars($sSearch, ENT_QUOTES, 'UTF-8'); ?>">
+                <?php endif; ?>
+                <?php if ($sYear !== ''): ?>
+                    <input type="hidden" name="year" value="<?php echo htmlspecialchars($sYear, ENT_QUOTES, 'UTF-8'); ?>">
+                <?php endif; ?>
+                <?php foreach ($aSearchTagIds as $nSearchTagId): ?>
+                    <input type="hidden" name="tag[]" value="<?php echo htmlspecialchars(encrypt((string) $nSearchTagId, $sEncryptKey), ENT_QUOTES, 'UTF-8'); ?>">
+                <?php endforeach; ?>
+
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="fa fa-tags me-2"></i>Catégorie</span>
+                    <?php
+                    echo htmlSelectNameChange(
+                        'T_TAGCATEGORY',
+                        'TCA_N_ID',
+                        'TCA_CH_LABEL',
+                        $nMaintenanceTCAId ?? '',
+                        'TCA_N_ORDER, TCA_CH_LABEL',
+                        'TCA_DT_SUPPRESSION IS NULL',
+                        $WM_ADMIN_conn,
+                        'maintenanceTCA_N_ID',
+                        '',
+                        '',
+                        $sEncryptKey,
+                        'form-select form-select-sm'
+                    );
+                    ?>
+                    <button type="submit" class="btn btn-primary" title="Rechercher les projets sans tag dans cette catégorie">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <?php if ($nMaintenanceTCAId !== null && $sMaintenanceCategoryLabel !== ''): ?>
+                <div class="mt-3 mb-2 text-body-secondary">
+                    <?php echo count($aMaintenanceProjects); ?> projet<?php echo count($aMaintenanceProjects) > 1 ? 's' : ''; ?> sans tag dans « <?php echo htmlspecialchars($sMaintenanceCategoryLabel, ENT_QUOTES, 'UTF-8'); ?> »
+                </div>
+
+                <?php if (count($aMaintenanceProjects) === 0): ?>
+                    <div class="text-success"><i class="fa fa-check me-2"></i>Aucun projet à compléter.</div>
+                <?php else: ?>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($aMaintenanceProjects as $aMaintenanceProject): ?>
+                            <?php
+                            $sMaintenanceYears = '';
+
+                            if ($aMaintenanceProject['PRO_N_YEARSTART'] !== null && $aMaintenanceProject['PRO_N_YEAREND'] !== null) {
+                                $sMaintenanceYears = $aMaintenanceProject['PRO_N_YEARSTART'] == $aMaintenanceProject['PRO_N_YEAREND']
+                                    ? (string) $aMaintenanceProject['PRO_N_YEARSTART']
+                                    : $aMaintenanceProject['PRO_N_YEARSTART'] . '–' . $aMaintenanceProject['PRO_N_YEAREND'];
+                            } elseif ($aMaintenanceProject['PRO_N_YEARSTART'] !== null) {
+                                $sMaintenanceYears = (string) $aMaintenanceProject['PRO_N_YEARSTART'];
+                            } elseif ($aMaintenanceProject['PRO_N_YEAREND'] !== null) {
+                                $sMaintenanceYears = (string) $aMaintenanceProject['PRO_N_YEAREND'];
+                            }
+                            ?>
+                            <a
+                                href="/project/upd.php?PRO_N_ID=<?php echo urlencode(encrypt((string) $aMaintenanceProject['PRO_N_ID'], $sEncryptKey)); ?>"
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0"
+                            >
+                                <span><?php echo htmlspecialchars($aMaintenanceProject['PRO_CH_LABEL'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                <?php if ($sMaintenanceYears !== ''): ?>
+                                    <span class="text-body-secondary text-nowrap ms-3"><?php echo htmlspecialchars($sMaintenanceYears, ENT_QUOTES, 'UTF-8'); ?></span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+    </div>
 </main>
 
 <style>
