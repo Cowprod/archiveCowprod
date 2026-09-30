@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../../secure.php';
 header('Content-Type: application/json; charset=utf-8');
 
@@ -14,34 +15,43 @@ try {
         'PRU_N_YEAR' => 'year-null',
     ];
 
-    if ($PRU_N_ID <= 0 || !isset($aAllowed[$sField])) {
+    if (!isset($aAllowed[$sField])) {
         throw new RuntimeException('URL invalide');
     }
 
     switch ($aAllowed[$sField]) {
         case 'type':
-            $mValue = (int) $sValue;
-            if ($mValue <= 0) {
+            $UTY_N_ID = decryptId($sValue, $sEncryptKey);
+            if ((int) getfield(
+                'count(*)',
+                'T_URLTYPE',
+                'WHERE UTY_N_ID=' . prepNum2Update($UTY_N_ID) . ' AND UTY_DT_SUPPRESSION IS NULL',
+                $WM_ADMIN_conn
+            ) !== 1) {
                 throw new RuntimeException('Type invalide');
             }
+            $sPreparedValue = prepNum2Update($UTY_N_ID);
             break;
+
         case 'url':
             if ($sValue === '' || filter_var($sValue, FILTER_VALIDATE_URL) === false) {
                 throw new RuntimeException('URL invalide');
             }
-            $mValue = $sValue;
+            $sPreparedValue = prepString2Update($sValue);
             break;
+
         case 'text-null':
-            $mValue = $sValue === '' ? null : $sValue;
+            $sPreparedValue = $sValue === '' ? 'null' : prepString2Update($sValue);
             break;
+
         case 'year-null':
             if ($sValue === '') {
-                $mValue = null;
+                $sPreparedValue = 'null';
             } else {
                 if (!ctype_digit($sValue) || (int) $sValue < 1900 || (int) $sValue > 2100) {
                     throw new RuntimeException('Année invalide');
                 }
-                $mValue = (int) $sValue;
+                $sPreparedValue = prepNum2Update($sValue);
             }
             break;
     }
@@ -49,24 +59,19 @@ try {
     $WM_ADMIN_conn->beginTransaction();
     historiseTable('T_PROJECTURL', 'PRU', $PRU_N_ID, $WM_ADMIN_conn);
 
-    $oUpdate = $WM_ADMIN_conn->prepare(
-        'UPDATE T_PROJECTURL
-         SET ' . $sField . ' = :sValue
-         WHERE T_PROJECTURL.PRU_N_ID = :PRU_N_ID
-           AND T_PROJECTURL.PRU_DT_SUPPRESSION IS NULL'
-    );
-    $oUpdate->bindValue(':sValue', $mValue, $mValue === null ? PDO::PARAM_NULL : (is_int($mValue) ? PDO::PARAM_INT : PDO::PARAM_STR));
-    $oUpdate->bindValue(':PRU_N_ID', $PRU_N_ID, PDO::PARAM_INT);
-    $oUpdate->execute();
+    $sSql = 'UPDATE T_PROJECTURL
+        SET ' . $sField . '=' . $sPreparedValue . '
+        WHERE PRU_N_ID=' . prepNum2Update($PRU_N_ID) . '
+          AND PRU_DT_SUPPRESSION IS NULL';
 
-    if ($oUpdate->rowCount() !== 1) {
+    if ($WM_ADMIN_conn->exec($sSql) !== 1) {
         throw new RuntimeException('URL introuvable');
     }
 
     $WM_ADMIN_conn->commit();
     echo json_encode(['success' => true]);
 } catch (Throwable $e) {
-    if (isset($WM_ADMIN_conn) && $WM_ADMIN_conn instanceof PDO && $WM_ADMIN_conn->inTransaction()) {
+    if ($WM_ADMIN_conn->inTransaction()) {
         $WM_ADMIN_conn->rollBack();
     }
     http_response_code(400);
