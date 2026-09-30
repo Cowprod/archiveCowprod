@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/../../secure.php';header('Content-Type: application/json; charset=utf-8');
 try{
-$pid=(int)($_POST['PRO_N_ID']??0);$tid=(int)($_POST['FTY_N_ID']??0);$label=trim((string)($_POST['PRF_CH_LABEL']??''));$year=archiveValidateYear($_POST['PRF_N_YEAR']??null);
+$pid=decryptId($_POST['PRO_N_ID'] ?? '', $sEncryptKey);$tid=decryptId($_POST['FTY_N_ID'] ?? '', $sEncryptKey);$label=trim((string)($_POST['PRF_CH_LABEL']??''));$year=archiveValidateYear($_POST['PRF_N_YEAR']??null);
 archiveAssertProject($WM_ADMIN_conn,$pid);archiveAssertFileType($WM_ADMIN_conn,$tid);
 if(!isset($_FILES['file'])||$_FILES['file']['error']!==UPLOAD_ERR_OK)throw new RuntimeException('Fichier absent ou upload incomplet');
 if(!is_uploaded_file($_FILES['file']['tmp_name']))throw new RuntimeException('Upload invalide');
