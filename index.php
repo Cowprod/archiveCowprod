@@ -91,7 +91,7 @@ if (count($aSearchTagIds) > 0) {
 
 $aProjects = oRs(
     '',
-    __DIR__ . '/sql/catalogue/selectProjects.sql',
+    __DIR__ . '/catalogue.sql',
     'SEARCH_FILTER=' . urlencode($sSearchFilter)
         . '&YEAR_FILTER=' . urlencode($sYearFilter)
         . '&TAG_FILTER=' . urlencode($sTagFilter),
@@ -100,7 +100,7 @@ $aProjects = oRs(
     $WM_ADMIN_conn
 );
 
-$aProjectTags = oRs('', __DIR__ . '/sql/catalogue/selectProjectTags.sql', '', 0, '', $WM_ADMIN_conn);
+$aProjectTags = oRs('', __DIR__ . '/catalogueTag.sql', '', 0, '', $WM_ADMIN_conn);
 
 $aTagsByProject = [];
 
@@ -108,7 +108,7 @@ foreach ($aProjectTags as $aTag) {
     $aTagsByProject[(int) $aTag['PRO_N_ID']][] = $aTag;
 }
 
-$aSearchTags = oRs('', __DIR__ . '/sql/catalogue/selectSearchTags.sql', '', 0, '', $WM_ADMIN_conn);
+$aSearchTags = oRs('', __DIR__ . '/catalogueSearchTag.sql', '', 0, '', $WM_ADMIN_conn);
 $aSearchTagsByCategory = [];
 
 foreach ($aSearchTags as $aTag) {
@@ -124,7 +124,7 @@ foreach ($aSearchTags as $aTag) {
     $aSearchTagsByCategory[$nCategoryId]['tags'][] = $aTag;
 }
 
-$aSearchImages = oRs('', __DIR__ . '/sql/catalogue/selectSearchImages.sql', '', 0, '', $WM_ADMIN_conn);
+$aSearchImages = oRs('', __DIR__ . '/catalogueSearchImage.sql', '', 0, '', $WM_ADMIN_conn);
 $aSearchImageByProject = [];
 
 foreach ($aSearchImages as $aImage) {
