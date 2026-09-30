@@ -379,43 +379,15 @@ require_once __DIR__ . '/../top.php';
             <?php else: ?><div class="text-body-secondary">Aucun fichier.</div><?php endif; ?>
         </div>
     </div>
-    <div class="modal fade" id="mAdminFileTypes" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title fs-5">Administrer les types de fichier</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body p-0"><iframe id="fAdminFileTypes" src="about:blank" style="width:100%;height:60vh;border:0;"></iframe></div>
-        </div></div>
-    </div>
-
-    <div class="modal fade" id="mAdminUrlTypes" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title fs-5">Administrer les types d’URL</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body p-0"><iframe id="fAdminUrlTypes" src="about:blank" style="width:100%;height:60vh;border:0;"></iframe></div>
-        </div></div>
-    </div>
-
-    <div class="modal fade" id="mAdminTags" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title fs-5">Administrer les tags</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <iframe
-                        id="fAdminTags"
-                        src="about:blank"
-                        title="Administration des tags"
-                        style="width:100%;height:70vh;border:0;"
-                    ></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
 </main>
 
 <script>
 $(function () {
     let nPendingSave = 0;
+
+    $('[data-sel-url]').each(function () {
+        updDiv(this, $(this).data('sel-url'));
+    });
 
     function setSaveStatus(sStatus, bError) {
         $('#dSaveStatus')
@@ -571,12 +543,9 @@ $(function () {
     });
 
     $('#bAdminTags').on('click', function () {
-        $('#fAdminTags').attr('src', '/tag/index.php');
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('mAdminTags')).show();
-    });
-
-    document.getElementById('mAdminTags').addEventListener('hidden.bs.modal', function () {
-        window.location.reload();
+        bootBoxAdmin('Administrer les tags', '/tag/index.php', function () {
+            window.location.reload();
+        });
     });
 
     function setOrderRowState($row, sState) {
@@ -661,12 +630,6 @@ $(function () {
         });
     }
 
-    $('#bAdminUrlTypes').on('click', function () {
-        $('#fAdminUrlTypes').attr('src', '/urlType/index.php');
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('mAdminUrlTypes')).show();
-    });
-    document.getElementById('mAdminUrlTypes').addEventListener('hidden.bs.modal', function () { window.location.reload(); });
-
     function saveUrl($field) {
         const $row = $field.closest('[data-url-id]');
 
@@ -721,7 +684,7 @@ $(function () {
         }
     });
 
-    $('.js-url-change').on('change', function () {
+    $(document).on('change', '.js-url-change', function () {
         setFieldState($(this), 'warning');
         saveUrl($(this));
     });
@@ -788,20 +751,14 @@ $(function () {
         });
     });
 
-    $('#bAdminFileTypes').on('click', function () {
-        $('#fAdminFileTypes').attr('src', '/fileType/index.php');
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('mAdminFileTypes')).show();
-    });
-    document.getElementById('mAdminFileTypes').addEventListener('hidden.bs.modal', function () { window.location.reload(); });
-
     function getClipboardFileType() {
-        let nType = $('#FTY_N_ID_ADD').val();
+        let nType = $('#FTY_N_ID').val();
 
         if (nType) {
             return nType;
         }
 
-        $('#FTY_N_ID_ADD option').each(function () {
+        $('#FTY_N_ID option').each(function () {
             const sLabel = $(this).text().trim().toLowerCase();
 
             if (!nType && (sLabel === 'screenshot' || sLabel === 'image')) {
@@ -810,18 +767,18 @@ $(function () {
         });
 
         if (nType) {
-            $('#FTY_N_ID_ADD').val(nType);
+            $('#FTY_N_ID').val(nType);
         }
 
         return nType;
     }
 
     function uploadFile(oFile, bClipboard) {
-        const nType = bClipboard ? getClipboardFileType() : $('#FTY_N_ID_ADD').val();
+        const nType = bClipboard ? getClipboardFileType() : $('#FTY_N_ID').val();
 
         if (!nType) {
             setSaveStatus('Choisir un type de fichier avant l’envoi', true);
-            $('#FTY_N_ID_ADD').addClass('autosave-warning');
+            $('#FTY_N_ID').addClass('autosave-warning');
             return;
         }
         const fd = new FormData();
@@ -937,7 +894,7 @@ $(function () {
         .fail(function(xhr){setFieldState($field,'danger');setSaveStatus(xhr.responseJSON&&xhr.responseJSON.message?xhr.responseJSON.message:'Erreur',true);});
     }
     $('.js-file-text').typing({delay:600,start:function(e,x){setFieldState(x,'warning')},stop:function(e,x){saveFile(x)}});
-    $('.js-file-change').on('change',function(){saveFile($(this))});
+    $(document).on('change','.js-file-change',function(){saveFile($(this))});
     $('.js-delete-file').on('click',function(){const $row=$(this).closest('[data-file-id]');if(!confirm('Supprimer ce fichier du catalogue ?'))return;$.post('/projectFile/trSupProjectFile.php',{PRF_N_ID:$row.data('file-id')},function(data){if(data.success)$row.remove();},'json');});
     $('.js-search-image').on('change',function(){const $field=$(this);setFieldState($field,'warning');$.post('/projectFile/trSearchImageProjectFile.php',{PRF_N_ID:$field.val()},function(data){if(data.success)setFieldState($field,'success');else setFieldState($field,'danger');},'json').fail(function(){setFieldState($field,'danger')});});
 
