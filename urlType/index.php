@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../secure.php';
-$oUrlTypes=oRs('',__DIR__.'/../sql/urlType/selectAll.sql','',0,'',$WM_ADMIN_conn);
+$oUrlTypes=oRs('',__DIR__.'/urlType.sql','',0,'',$WM_ADMIN_conn);
 ?>
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet">
@@ -12,6 +12,6 @@ $oUrlTypes=oRs('',__DIR__.'/../sql/urlType/selectAll.sql','',0,'',$WM_ADMIN_conn
 </tbody></table></div>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><script src="/assets/js/jquery.typing-0.2.0.js"></script>
 <script>$(function(){function state(x,s){clearTimeout(x.data('ast'));x.removeClass('autosave-warning autosave-success autosave-danger');if(s==='warning')x.addClass('autosave-warning');else if(s==='success'){x.addClass('autosave-success');x.data('ast',setTimeout(function(){x.removeClass('autosave-success');},1500));}else if(s==='danger')x.addClass('autosave-danger');}function post(u,d,ok,fail){$.post(u,d).done(function(r){if(r.success){if(ok)ok();}else $('#dMessage').removeClass('d-none').text(r.message||'Erreur');}).fail(function(x){$('#dMessage').removeClass('d-none').text(x.responseJSON&&x.responseJSON.message?x.responseJSON.message:'Erreur');if(fail)fail();});}
-$('#fAdd').on('submit',function(e){e.preventDefault();post('/urlType/api/trAdd.php',$(this).serialize(),function(){location.reload();});});
-$('.js-label').typing({delay:500,start:function(e,x){state(x,'warning');},stop:function(e,x){state(x,'warning');post('/urlType/api/trUpd.php',{UTY_N_ID:x.closest('tr').data('id'),UTY_CH_LABEL:x.val()},function(){state(x,'success');},function(){state(x,'danger');});}});
-$('.js-del').on('click',function(){var r=$(this).closest('tr');if(confirm('Supprimer ce type d’URL ?'))post('/urlType/api/trDelete.php',{UTY_N_ID:r.data('id')},function(){r.remove();});});});</script></body></html>
+$('#fAdd').on('submit',function(e){e.preventDefault();post('/urlType/trUpdUrlType.php',$(this).serialize(),function(){location.reload();});});
+$('.js-label').typing({delay:500,start:function(e,x){state(x,'warning');},stop:function(e,x){state(x,'warning');post('/urlType/trUpdUrlType.php',{UTY_N_ID:x.closest('tr').data('id'),UTY_CH_LABEL:x.val()},function(){state(x,'success');},function(){state(x,'danger');});}});
+$('.js-del').on('click',function(){var r=$(this).closest('tr');if(confirm('Supprimer ce type d’URL ?'))post('/urlType/trSupUrlType.php',{UTY_N_ID:r.data('id')},function(){r.remove();});});});</script></body></html>
