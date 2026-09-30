@@ -11,23 +11,16 @@ if ($sUser === '' || $sPassword === '') {
     exit;
 }
 
-$oUser = $WM_ADMIN_conn->prepare(
-    'SELECT
-        USR_N_ID,
-        USR_CH_LOGIN,
-        USR_CH_PASSWORD
-     FROM T_USER
-     WHERE USR_DT_SUPPRESSION IS NULL
-       AND LOWER(USR_CH_LOGIN) = LOWER(:USR_CH_LOGIN)
-     ORDER BY USR_N_ID DESC
-     LIMIT 1'
+$aUsers = oRs(
+    '',
+    __DIR__ . '/sql/auth/selectUser.sql',
+    'USR_CH_LOGIN=' . urlencode(prepString2Update($sUser)),
+    0,
+    '',
+    $WM_ADMIN_conn
 );
 
-$oUser->execute([
-    'USR_CH_LOGIN' => $sUser,
-]);
-
-$aUser = $oUser->fetch();
+$aUser = $aUsers[0] ?? false;
 
 if (!$aUser || !password_verify($sPassword, (string) $aUser['USR_CH_PASSWORD'])) {
     $_SESSION['sLoginError'] = 'Identifiant ou mot de passe incorrect';
