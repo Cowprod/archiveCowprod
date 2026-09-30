@@ -188,12 +188,12 @@ require_once __DIR__ . '/../top.php';
         <div class="card-header">URLs</div>
         <div class="card-body">
             <form id="fAddUrl" class="mb-3">
-                <div class="input-group">
+                <div class="input-group input-group-sm">
                     <span class="input-group-text">Type</span>
                     <div
                         id="dSelUrlTypeAdd"
                         class="input-group-text p-0 resource-type-host"
-                        data-sel-url="/urlType/sel.php?sId=UTY_N_ID&amp;updateDiv=dSelUrlTypeAdd&amp;required=1"
+                        data-sel-url="/urlType/sel.php?sId=UTY_N_ID&amp;updateDiv=dSelUrlTypeAdd&amp;required=1&amp;small=1"
                     ></div>
 
                     <span class="input-group-text">URL</span>
@@ -205,8 +205,8 @@ require_once __DIR__ . '/../top.php';
                     <span class="input-group-text">Année</span>
                     <input type="number" min="1900" max="2100" class="form-control resource-year" name="PRU_N_YEAR">
 
-                    <button type="submit" class="btn btn-success">
-                        <i class="fa fa-plus-circle me-2"></i>Ajouter
+                    <button type="submit" class="btn btn-success" title="Ajouter l’URL">
+                        <i class="fa fa-plus-circle"></i>
                     </button>
                 </div>
             </form>
@@ -296,12 +296,12 @@ require_once __DIR__ . '/../top.php';
         </div>
         <div class="card-body">
             <form id="fAddFile" enctype="multipart/form-data" class="mb-3">
-                <div class="input-group">
+                <div class="input-group input-group-sm">
                     <span class="input-group-text">Type</span>
                     <div
                         id="dSelFileTypeAdd"
                         class="input-group-text p-0 resource-type-host"
-                        data-sel-url="/fileType/sel.php?sId=FTY_N_ID&amp;updateDiv=dSelFileTypeAdd&amp;required=1"
+                        data-sel-url="/fileType/sel.php?sId=FTY_N_ID&amp;updateDiv=dSelFileTypeAdd&amp;required=1&amp;small=1"
                     ></div>
 
                     <span class="input-group-text">Fichier</span>
@@ -313,8 +313,8 @@ require_once __DIR__ . '/../top.php';
                     <span class="input-group-text">Année</span>
                     <input type="number" min="1900" max="2100" class="form-control resource-year" name="PRF_N_YEAR">
 
-                    <button type="submit" class="btn btn-success">
-                        <i class="fa fa-upload me-2"></i>Ajouter
+                    <button type="submit" class="btn btn-success" title="Ajouter le fichier">
+                        <i class="fa fa-plus-circle"></i>
                     </button>
                 </div>
             </form>
