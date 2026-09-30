@@ -22,7 +22,7 @@ try {
         0,
         '',
         $WM_ADMIN_conn
-    );;
+    );
 
     $aExisting = array_map('intval', array_column($aRows, 'PRF_N_ID'));
     $aCheckExisting = $aExisting;
