@@ -194,6 +194,29 @@ foreach ($aSearchTags as $aTag) {
     $aSearchTagsByCategory[$nCategoryId]['tags'][] = $aTag;
 }
 
+$aYearCoverageRows = oRs('', __DIR__ . '/catalogueYearCoverage.sql', '', 0, '', $WM_ADMIN_conn);
+$nCoverageYearStart = 1997;
+$nCoverageYearEnd = (int) date('Y');
+$aCoveredYears = array_fill_keys(range($nCoverageYearStart, $nCoverageYearEnd), false);
+
+foreach ($aYearCoverageRows as $aYearCoverageRow) {
+    $nProjectYearStart = $aYearCoverageRow['PRO_N_YEARSTART'] !== null
+        ? (int) $aYearCoverageRow['PRO_N_YEARSTART']
+        : $nCoverageYearStart;
+    $nProjectYearEnd = $aYearCoverageRow['PRO_N_YEAREND'] !== null
+        ? (int) $aYearCoverageRow['PRO_N_YEAREND']
+        : $nCoverageYearEnd;
+
+    $nProjectYearStart = max($nProjectYearStart, $nCoverageYearStart);
+    $nProjectYearEnd = min($nProjectYearEnd, $nCoverageYearEnd);
+
+    if ($nProjectYearStart <= $nProjectYearEnd) {
+        for ($nCoverageYear = $nProjectYearStart; $nCoverageYear <= $nProjectYearEnd; $nCoverageYear++) {
+            $aCoveredYears[$nCoverageYear] = true;
+        }
+    }
+}
+
 $aMaintenanceTagCategories = oRs('', __DIR__ . '/maintenanceTagCategory.sql', '', 0, '', $WM_ADMIN_conn);
 
 $nMaintenanceWithoutYear = (int) getfield(
@@ -300,6 +323,28 @@ require_once __DIR__ . '/top.php';
                         <i class="fa fa-times"></i>
                     </a>
                 <?php endif; ?>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-1 mt-3">
+                <span class="small text-body-secondary me-1"><i class="fa fa-calendar me-1"></i>Couverture</span>
+
+                <?php foreach ($aCoveredYears as $nCoverageYear => $bCoverageYearCovered): ?>
+                    <?php if ($bCoverageYearCovered): ?>
+                        <button
+                            type="button"
+                            class="btn btn-sm text-dark js-coverage-year <?php echo $nSearchYear === (int) $nCoverageYear ? 'btn-warning' : 'btn-light'; ?>"
+                            data-year="<?php echo (int) $nCoverageYear; ?>"
+                            title="Rechercher les projets couvrant <?php echo (int) $nCoverageYear; ?>"
+                        ><?php echo (int) $nCoverageYear; ?></button>
+                    <?php else: ?>
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-secondary"
+                            disabled
+                            title="Aucun projet pour <?php echo (int) $nCoverageYear; ?>"
+                        ><?php echo (int) $nCoverageYear; ?></button>
+                    <?php endif; ?>
+                <?php endforeach; ?>
             </div>
 
             <?php if (count($aMaintenanceTagCategories) > 0 || $nMaintenanceWithoutYear > 0 || $nMaintenanceWithoutUrl > 0 || $nMaintenanceWithoutFile > 0): ?>
@@ -447,6 +492,11 @@ require_once __DIR__ . '/top.php';
 
 <script>
 $(function () {
+    $('.js-coverage-year').on('click', function () {
+        $('#year').val($(this).data('year'));
+        $(this).closest('form').trigger('submit');
+    });
+
     $('#tagSearch').select2({
         width: '100%',
         placeholder: 'Tous les tags sélectionnés',
