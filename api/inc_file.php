@@ -133,41 +133,28 @@ function archiveInsertProjectFile(
         $oConn
     );
 
-    $sSql = 'INSERT INTO T_PROJECTFILE (
-        PRO_N_ID,
-        FTY_N_ID,
-        PRF_CH_LABEL,
-        PRF_CH_FILENAME,
-        PRF_CH_MIMETYPE,
-        PRF_N_SIZE,
-        PRF_CH_PATH,
-        PRF_CH_SOURCE,
-        PRF_CH_SOURCE_URL,
-        PRF_N_YEAR,
-        PRF_N_ORDER,
-        PRF_BL_SEARCHIMAGE,
-        PRF_DT_CREATION,
-        PRF_CH_CREATION
-    ) VALUES (
-        ' . prepNum2Update($PRO_N_ID) . ',
-        ' . prepNum2Update($FTY_N_ID) . ',
-        ' . ($sLabel === null || trim($sLabel) === '' ? 'null' : prepString2Update($sLabel)) . ',
-        ' . prepString2Update($sOriginalName) . ',
-        ' . prepString2Update($sMime) . ',
-        ' . prepNum2Update($nSize) . ',
-        ' . prepString2Update($sPath) . ',
-        ' . prepString2Update($sSource) . ',
-        ' . ($sSourceUrl === null || trim($sSourceUrl) === '' ? 'null' : prepString2Update($sSourceUrl)) . ',
-        ' . ($nYear === null ? 'null' : prepNum2Update($nYear)) . ',
-        ' . prepNum2Update($nOrder) . ',
-        0,
-        NOW(),
-        ' . prepString2Update(sSignature()) . '
-    )';
+    $PRF_N_ID = getIdConPdo('T_PROJECTFILE', 'PRF_CH_CREATION', 'temporaire', $oConn);
 
-    $oConn->exec($sSql);
+    $oConn->exec(
+        'UPDATE T_PROJECTFILE SET '
+        . 'PRO_N_ID=' . prepNum2Update($PRO_N_ID) . ','
+        . 'FTY_N_ID=' . prepNum2Update($FTY_N_ID) . ','
+        . 'PRF_CH_LABEL=' . ($sLabel === null || trim($sLabel) === '' ? 'null' : prepString2Update($sLabel)) . ','
+        . 'PRF_CH_FILENAME=' . prepString2Update($sOriginalName) . ','
+        . 'PRF_CH_MIMETYPE=' . prepString2Update($sMime) . ','
+        . 'PRF_N_SIZE=' . prepNum2Update($nSize) . ','
+        . 'PRF_CH_PATH=' . prepString2Update($sPath) . ','
+        . 'PRF_CH_SOURCE=' . prepString2Update($sSource) . ','
+        . 'PRF_CH_SOURCE_URL=' . ($sSourceUrl === null || trim($sSourceUrl) === '' ? 'null' : prepString2Update($sSourceUrl)) . ','
+        . 'PRF_N_YEAR=' . prepNum2Update($nYear) . ','
+        . 'PRF_N_ORDER=' . prepNum2Update($nOrder) . ','
+        . 'PRF_BL_SEARCHIMAGE=0,'
+        . 'PRF_DT_CREATION=NOW(),'
+        . 'PRF_CH_CREATION=' . prepString2Update(sSignature())
+        . ' WHERE PRF_N_ID=' . prepNum2Update($PRF_N_ID)
+    );
 
-    return (int) $oConn->lastInsertId();
+    return $PRF_N_ID;
 }
 
 function archiveValidateYear(?string $sYear): ?int
