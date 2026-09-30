@@ -17,7 +17,6 @@ try {
     }
 
     $WM_ADMIN_conn->beginTransaction();
-    historiseTable('T_URLTYPE', 'UTY', $UTY_N_ID, $WM_ADMIN_conn);
 
     $sSql = 'UPDATE T_URLTYPE
         SET UTY_DT_SUPPRESSION=NOW(),
