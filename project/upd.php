@@ -200,13 +200,22 @@ require_once __DIR__ . '/../top.php';
                         </div>
                     </div>
                     <div class="col-md">
-                        <input type="url" class="form-control" name="PRU_CH_URL" placeholder="https://…" required>
+                        <div class="input-group h-100">
+                            <span class="input-group-text w-25">URL</span>
+                            <input type="url" class="form-control" name="PRU_CH_URL" required>
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <input type="text" class="form-control" name="PRU_CH_LABEL" placeholder="Libellé facultatif">
+                        <div class="input-group h-100">
+                            <span class="input-group-text w-25">Libellé</span>
+                            <input type="text" class="form-control" name="PRU_CH_LABEL">
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <input type="number" min="1900" max="2100" class="form-control" name="PRU_N_YEAR" placeholder="Année">
+                        <div class="input-group h-100">
+                            <span class="input-group-text w-35">Année</span>
+                            <input type="number" min="1900" max="2100" class="form-control" name="PRU_N_YEAR">
+                        </div>
                     </div>
                     <div class="col-auto">
                         <button type="submit" class="btn btn-success">
@@ -313,10 +322,23 @@ require_once __DIR__ . '/../top.php';
                         </div>
                     </div>
                     <div class="col-md">
-                        <input type="file" class="form-control h-100" name="file" id="PRF_FILE" required>
+                        <div class="input-group h-100">
+                            <span class="input-group-text w-25">Fichier</span>
+                            <input type="file" class="form-control" name="file" id="PRF_FILE" required>
+                        </div>
                     </div>
-                    <div class="col-md-2"><input type="text" class="form-control h-100" name="PRF_CH_LABEL" placeholder="Libellé"></div>
-                    <div class="col-md-2"><input type="number" min="1900" max="2100" class="form-control h-100" name="PRF_N_YEAR" placeholder="Année"></div>
+                    <div class="col-md-2">
+                        <div class="input-group h-100">
+                            <span class="input-group-text w-35">Libellé</span>
+                            <input type="text" class="form-control" name="PRF_CH_LABEL">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group h-100">
+                            <span class="input-group-text w-35">Année</span>
+                            <input type="number" min="1900" max="2100" class="form-control" name="PRF_N_YEAR">
+                        </div>
+                    </div>
                     <div class="col-auto"><button type="submit" class="btn btn-success h-100"><i class="fa fa-upload me-2"></i>Ajouter</button></div>
                 </div>
             </form>
@@ -721,10 +743,7 @@ $(function () {
     $('.js-delete-url').on('click', function () {
         const $row = $(this).closest('[data-url-id]');
 
-        if (!confirm('Supprimer cette URL ?')) {
-            return;
-        }
-
+        cowprodConfirm('Supprimer cette URL ?', function () {
         $.ajax({
             url: '/projectUrl/trSupProjectUrl.php',
             type: 'POST',
@@ -748,6 +767,7 @@ $(function () {
                     : 'Erreur lors de la suppression de l’URL',
                 true
             );
+        });
         });
     });
 
@@ -895,14 +915,11 @@ $(function () {
     }
     $('.js-file-text').typing({delay:600,start:function(e,x){setFieldState(x,'warning')},stop:function(e,x){saveFile(x)}});
     $(document).on('change','.js-file-change',function(){saveFile($(this))});
-    $('.js-delete-file').on('click',function(){const $row=$(this).closest('[data-file-id]');if(!confirm('Supprimer ce fichier du catalogue ?'))return;$.post('/projectFile/trSupProjectFile.php',{PRF_N_ID:$row.data('file-id')},function(data){if(data.success)$row.remove();},'json');});
+    $('.js-delete-file').on('click',function(){const $row=$(this).closest('[data-file-id]');cowprodConfirm('Supprimer ce fichier du catalogue ?',function(){$.post('/projectFile/trSupProjectFile.php',{PRF_N_ID:$row.data('file-id')},function(data){if(data.success)$row.remove();},'json');});});
     $('.js-search-image').on('change',function(){const $field=$(this);setFieldState($field,'warning');$.post('/projectFile/trSearchImageProjectFile.php',{PRF_N_ID:$field.val()},function(data){if(data.success)setFieldState($field,'success');else setFieldState($field,'danger');},'json').fail(function(){setFieldState($field,'danger')});});
 
     $('#bDeleteProject').on('click', function () {
-        if (!confirm('Supprimer ce projet du catalogue ?')) {
-            return;
-        }
-
+        cowprodConfirm('Supprimer ce projet du catalogue ?', function () {
         $.ajax({
             url: '/project/trSupProject.php',
             type: 'POST',
@@ -927,6 +944,7 @@ $(function () {
             }
 
             setSaveStatus(sMessage, true);
+        });
         });
     });
 });
