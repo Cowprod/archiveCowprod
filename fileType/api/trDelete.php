@@ -17,7 +17,6 @@ try {
     }
 
     $WM_ADMIN_conn->beginTransaction();
-    historiseTable('T_FILETYPE', 'FTY', $FTY_N_ID, $WM_ADMIN_conn);
 
     $sSql = 'UPDATE T_FILETYPE
         SET FTY_DT_SUPPRESSION=NOW(),
