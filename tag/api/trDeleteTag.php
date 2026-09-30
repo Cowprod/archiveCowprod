@@ -13,7 +13,7 @@ try {
         0,
         '',
         $WM_ADMIN_conn
-    );;
+    );
 
     foreach($aLinks as $aLink) {
         $PTA_N_ID=(int)$aLink['PTA_N_ID'];
