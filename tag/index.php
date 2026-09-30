@@ -284,7 +284,7 @@ $(function () {
             return;
         }
 
-        ajaxPost('/tag/api/trDeleteTag.php', {
+        ajaxPost('/tag/trSupTag.php', {
             TAG_N_ID: $row.data('tag-id')
         }, function () {
             $row.remove();
