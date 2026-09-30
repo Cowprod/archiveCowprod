@@ -16,3 +16,7 @@ if (!file_exists($configFile)) {
 }
 
 require $configFile;
+
+if (!isset($sEncryptKey) || trim((string) $sEncryptKey) === '') {
+    throw new RuntimeException('Clé de chiffrement absente de config/config.php');
+}
