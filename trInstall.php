@@ -242,7 +242,8 @@ try {
         . '$sDbHost = ' . var_export($sDbHost, true) . ";\n"
         . '$sDbName = ' . var_export($sDbName, true) . ";\n"
         . '$sDbUser = ' . var_export($sDbUser, true) . ";\n"
-        . '$sDbPassword = ' . var_export($sDbPassword, true) . ";\n\n"
+        . '$sDbPassword = ' . var_export($sDbPassword, true) . ";\n"
+        . '$sEncryptKey = ' . var_export('toutcatoutca', true) . ";\n\n"
         . '$sStoragePath = ' . var_export($sStoragePath, true) . ";\n"
         . '$sStorageCachePath = ' . var_export($sStorageCachePath, true) . ";\n";
 
