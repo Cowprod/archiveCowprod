@@ -6,7 +6,7 @@ try {
     $PRO_N_ID = decryptId($_POST['PRO_N_ID'] ?? '', $sEncryptKey);
     $aIds = $_POST['PRU_N_ID'] ?? [];
 
-    if ($PRO_N_ID <= 0 || !is_array($aIds)) {
+    if (!is_array($aIds)) {
         throw new RuntimeException('Ordre des URLs invalide');
     }
 
@@ -15,19 +15,13 @@ try {
         $aIds
     )));
 
-    $oRows = $WM_ADMIN_conn->prepare(
-        'SELECT T_PROJECTURL.PRU_N_ID, T_PROJECTURL.PRU_N_ORDER
+    $aRows = $WM_ADMIN_conn->query(
+        'SELECT PRU_N_ID,PRU_N_ORDER
          FROM T_PROJECTURL
-         WHERE T_PROJECTURL.PRO_N_ID = :PRO_N_ID
-           AND T_PROJECTURL.PRU_DT_SUPPRESSION IS NULL
-         ORDER BY T_PROJECTURL.PRU_N_ORDER ASC, T_PROJECTURL.PRU_N_ID ASC'
-    );
-    $oRows->execute(['PRO_N_ID' => $PRO_N_ID]);
-    $aRows = $oRows->fetchAll();
-
-    if (count($aRows) !== count($aIds)) {
-        throw new RuntimeException('Liste des URLs incomplète');
-    }
+         WHERE PRO_N_ID=' . prepNum2Update($PRO_N_ID) . '
+           AND PRU_DT_SUPPRESSION IS NULL
+         ORDER BY PRU_N_ORDER ASC,PRU_N_ID ASC'
+    )->fetchAll();
 
     $aExisting = array_map('intval', array_column($aRows, 'PRU_N_ID'));
     $aCheckExisting = $aExisting;
@@ -46,31 +40,27 @@ try {
 
     $WM_ADMIN_conn->beginTransaction();
 
-    foreach ($aIds as $nIndex => $PRU_N_ID) {
+    foreach ($aIds as $nIndex => $nId) {
         $nOrder = ($nIndex + 1) * 10;
 
-        if (($aCurrentOrder[$PRU_N_ID] ?? null) === $nOrder) {
+        if (($aCurrentOrder[$nId] ?? null) === $nOrder) {
             continue;
         }
 
-        historiseTable('T_PROJECTURL', 'PRU', $PRU_N_ID, $WM_ADMIN_conn);
+        historiseTable('T_PROJECTURL', 'PRU', $nId, $WM_ADMIN_conn);
 
-        $oUpdate = $WM_ADMIN_conn->prepare(
+        $WM_ADMIN_conn->exec(
             'UPDATE T_PROJECTURL
-             SET PRU_N_ORDER = :PRU_N_ORDER
-             WHERE T_PROJECTURL.PRU_N_ID = :PRU_N_ID
-               AND T_PROJECTURL.PRU_DT_SUPPRESSION IS NULL'
+             SET PRU_N_ORDER=' . prepNum2Update($nOrder) . '
+             WHERE PRU_N_ID=' . prepNum2Update($nId) . '
+               AND PRU_DT_SUPPRESSION IS NULL'
         );
-        $oUpdate->execute([
-            'PRU_N_ORDER' => $nOrder,
-            'PRU_N_ID' => $PRU_N_ID,
-        ]);
     }
 
     $WM_ADMIN_conn->commit();
     echo json_encode(['success' => true]);
 } catch (Throwable $e) {
-    if (isset($WM_ADMIN_conn) && $WM_ADMIN_conn instanceof PDO && $WM_ADMIN_conn->inTransaction()) {
+    if ($WM_ADMIN_conn->inTransaction()) {
         $WM_ADMIN_conn->rollBack();
     }
     http_response_code(400);
