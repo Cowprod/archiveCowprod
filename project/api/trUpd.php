@@ -10,7 +10,7 @@ try {
 
     $aAllowedFields = [
         'PRO_CH_LABEL' => 'text',
-        'PRO_TX_DESCRIPTION' => 'text-null',
+        'PRO_CH_DESCRIPTION' => 'text-null',
         'PRO_N_YEARSTART' => 'year-null',
         'PRO_N_YEAREND' => 'year-null',
     ];
