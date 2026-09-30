@@ -6,9 +6,14 @@ try {
     $TAG_N_ID = decryptId($_POST['TAG_N_ID'] ?? '', $sEncryptKey);
     $WM_ADMIN_conn->beginTransaction();
 
-    $aLinks = $WM_ADMIN_conn->query(
-        'SELECT PTA_N_ID FROM T_PROJECTTAG WHERE TAG_N_ID=' . prepNum2Update($TAG_N_ID) . ' AND PTA_DT_SUPPRESSION IS NULL'
-    )->fetchAll();
+    $aLinks = oRs(
+        '',
+        __DIR__ . '/../../sql/tag/selectProjectTagLinks.sql',
+        'TAG_N_ID=' . urlencode(prepNum2Update($TAG_N_ID)),
+        0,
+        '',
+        $WM_ADMIN_conn
+    );;
 
     foreach($aLinks as $aLink) {
         $PTA_N_ID=(int)$aLink['PTA_N_ID'];
