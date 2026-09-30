@@ -1,5 +1,59 @@
 <?php
-require_once __DIR__.'/../../secure.php';header('Content-Type: application/json; charset=utf-8');
-try{$id=decryptId($_POST['PRF_N_ID'] ?? '', $sEncryptKey);$q=$WM_ADMIN_conn->prepare('SELECT PRO_N_ID,PRF_CH_MIMETYPE FROM T_PROJECTFILE WHERE PRF_N_ID=:id AND PRF_DT_SUPPRESSION IS NULL');$q->execute(['id'=>$id]);$r=$q->fetch();if(!$r||!archiveIsImageMime((string)$r['PRF_CH_MIMETYPE']))throw new RuntimeException('Image invalide');$pid=(int)$r['PRO_N_ID'];
-$WM_ADMIN_conn->beginTransaction();$q=$WM_ADMIN_conn->prepare('SELECT PRF_N_ID,PRF_BL_SEARCHIMAGE FROM T_PROJECTFILE WHERE PRO_N_ID=:pid AND PRF_DT_SUPPRESSION IS NULL AND PRF_CH_MIMETYPE LIKE \'image/%\' FOR UPDATE');$q->execute(['pid'=>$pid]);foreach($q->fetchAll() as $f){$fid=(int)$f['PRF_N_ID'];$want=$fid===$id?1:0;if((int)$f['PRF_BL_SEARCHIMAGE']!==$want){historiseTable('T_PROJECTFILE','PRF',$fid,$WM_ADMIN_conn);$u=$WM_ADMIN_conn->prepare('UPDATE T_PROJECTFILE SET PRF_BL_SEARCHIMAGE=:v WHERE PRF_N_ID=:id');$u->execute(['v'=>$want,'id'=>$fid]);}}
-$WM_ADMIN_conn->commit();echo json_encode(['success'=>true]);}catch(Throwable $e){if(isset($WM_ADMIN_conn)&&$WM_ADMIN_conn->inTransaction())$WM_ADMIN_conn->rollBack();http_response_code(400);echo json_encode(['success'=>false,'message'=>$e->getMessage()]);}
+require_once __DIR__ . '/../../secure.php';
+header('Content-Type: application/json; charset=utf-8');
+
+try {
+    $PRF_N_ID = decryptId($_POST['PRF_N_ID'] ?? '', $sEncryptKey);
+
+    $aFiles = $WM_ADMIN_conn->query(
+        'SELECT PRO_N_ID,PRF_CH_MIMETYPE
+         FROM T_PROJECTFILE
+         WHERE PRF_N_ID=' . prepNum2Update($PRF_N_ID) . '
+           AND PRF_DT_SUPPRESSION IS NULL'
+    )->fetchAll();
+
+    $aFile = $aFiles[0] ?? false;
+
+    if (!$aFile || !archiveIsImageMime((string) $aFile['PRF_CH_MIMETYPE'])) {
+        throw new RuntimeException('Image invalide');
+    }
+
+    $PRO_N_ID = (int) $aFile['PRO_N_ID'];
+
+    $WM_ADMIN_conn->beginTransaction();
+
+    $aImages = $WM_ADMIN_conn->query(
+        'SELECT PRF_N_ID,PRF_BL_SEARCHIMAGE
+         FROM T_PROJECTFILE
+         WHERE PRO_N_ID=' . prepNum2Update($PRO_N_ID) . '
+           AND PRF_DT_SUPPRESSION IS NULL
+           AND PRF_CH_MIMETYPE LIKE ' . prepString2Update('image/%') . '
+         FOR UPDATE'
+    )->fetchAll();
+
+    foreach ($aImages as $aImage) {
+        $nFileId = (int) $aImage['PRF_N_ID'];
+        $nWanted = $nFileId === $PRF_N_ID ? 1 : 0;
+
+        if ((int) $aImage['PRF_BL_SEARCHIMAGE'] === $nWanted) {
+            continue;
+        }
+
+        historiseTable('T_PROJECTFILE', 'PRF', $nFileId, $WM_ADMIN_conn);
+
+        $WM_ADMIN_conn->exec(
+            'UPDATE T_PROJECTFILE
+             SET PRF_BL_SEARCHIMAGE=' . prepNum2Update($nWanted) . '
+             WHERE PRF_N_ID=' . prepNum2Update($nFileId)
+        );
+    }
+
+    $WM_ADMIN_conn->commit();
+    echo json_encode(['success' => true]);
+} catch (Throwable $e) {
+    if ($WM_ADMIN_conn->inTransaction()) {
+        $WM_ADMIN_conn->rollBack();
+    }
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}
