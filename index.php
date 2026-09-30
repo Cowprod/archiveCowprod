@@ -77,7 +77,7 @@ if ($sSearch !== '') {
 if ($nSearchYear !== null) {
     $sSql .= ' AND (
         (T_PROJECT.PRO_N_YEARSTART IS NULL OR T_PROJECT.PRO_N_YEARSTART <= ' . prepNum2Update($nSearchYear) . ')
-        AND (T_PROJECT.PRO_N_YEAREND IS NULL OR T_PROJECT.PRO_N_YEAREND >= :nSearchYear)
+        AND (T_PROJECT.PRO_N_YEAREND IS NULL OR T_PROJECT.PRO_N_YEAREND >= ' . prepNum2Update($nSearchYear) . ')
         AND (T_PROJECT.PRO_N_YEARSTART IS NOT NULL OR T_PROJECT.PRO_N_YEAREND IS NOT NULL)
     )';
 }
