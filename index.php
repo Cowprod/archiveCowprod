@@ -35,7 +35,7 @@ if ($sSearch !== '') {
 
     $sSearchFilter = 'AND (
         T_PROJECT.PRO_CH_LABEL LIKE ' . $sLike . '
-        OR T_PROJECT.PRO_TX_DESCRIPTION LIKE ' . $sLike . '
+        OR T_PROJECT.PRO_CH_DESCRIPTION LIKE ' . $sLike . '
         OR EXISTS (
             SELECT 1
             FROM T_PROJECTURL
@@ -265,10 +265,10 @@ require_once __DIR__ . '/top.php';
                                 </div>
                             <?php endif; ?>
 
-                            <?php if (trim((string) ($aProject['PRO_TX_DESCRIPTION'] ?? '')) !== ''): ?>
+                            <?php if (trim((string) ($aProject['PRO_CH_DESCRIPTION'] ?? '')) !== ''): ?>
                                 <p class="mb-0 text-body-secondary">
                                     <?php
-                                    $sDescription = trim((string) $aProject['PRO_TX_DESCRIPTION']);
+                                    $sDescription = trim((string) $aProject['PRO_CH_DESCRIPTION']);
 
                                     if (mb_strlen($sDescription) > 180) {
                                         $sDescription = mb_substr($sDescription, 0, 177) . '…';
