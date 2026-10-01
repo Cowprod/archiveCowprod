@@ -28,7 +28,7 @@ Objectif : archiver au moins un projet par jour dans archiveCowprod.
 | A la folie | `A la folie/conductor` | conductor | | À qualifier | |
 | A la folie | `A la folie/tempBO` | tempBO | | À qualifier | Probable temporaire |
 | Arte Factory | `Arte Factory` | À découper | | À qualifier | Sous-dossiers visibles : Bezons Coeur de ville, Teaser Montparnasse |
-| Bobigny | `Bobigny` | À découper | | À qualifier | Sous-dossier visible : Bobigny |
+| Bobigny | `Bobigny/Bobigny` | Bobigny |  | Reporté | Client reporté ; projet listé individuellement |
 | Christian | `Christian` | À découper | | À qualifier | CM - Musique, Famille, Pour l'histoire, pourlhistoire |
 | Delmont Imaging | `Delmont Imaging` | À découper | | À qualifier | Plusieurs versions / projets techniques |
 | Dentsu | `Dentsu` | À découper | | À qualifier | Salle du board, Temperature |
