@@ -95,13 +95,39 @@ Objectif : archiver au moins un projet par jour dans archiveCowprod.
 | Piaraly | `Piaraly/pbclichy` | pbclichy | | Reporté | AF |
 | Piaraly | `Piaraly/soisy.numbers` | — | Apple Numbers | Ignoré | Simple document, pas un projet |
 | Piaraly | `Piaraly/soisy.pages` | — | Apple Pages | Ignoré | Simple document, pas un projet |
-| Test | `Test` | À découper | | À qualifier | Nombreux POC ; granularité à décider |
-| Wegom | `Wegom` | À découper | | À qualifier | Plusieurs clients / projets |
-| conseil | `conseil` | À découper | | À qualifier | aamac.local_20250825_070017 |
-| efficience | `efficience` | À découper | | À qualifier | cfes |
-| eridia | `eridia` | À découper | | À qualifier | cowprod.zip, prod, rea |
-| ms | `ms` | À découper | | À qualifier | Cadref, Duplicate Qr-Code, Melons, Samsung, Wifimage, sanicard |
-| phyto | `phyto` | À découper | | À qualifier | www.phyto-terra.com |
+| Test | `Test/www.az-production.fr` | www.az-production.fr | | À faire | À réinstaller |
+| Test | `Test/www.az-quad.fr` | www.az-quad.fr | | À faire | À réinstaller |
+| Test | `Test/www.discobus.fr` | www.discobus.fr | | À faire | À réinstaller |
+| Test | `Test/ruffkingmusic.com` | ruffkingmusic.com | | À faire | À réinstaller |
+| Test | autres dossiers sous `Test` | — | | Ignoré | Tout le reste du dossier Test est écarté |
+| Wegom | `Wegom/Claye` | Téléthon | | À faire | À réinstaller |
+| Wegom | `Wegom/Clio` | Clio | | Reporté | AF |
+| Wegom | `Wegom/Dentsu` | Dentsu | Domotique | Reporté | Même famille que les projets Dentsu |
+| Wegom | `Wegom/Euler` | Calendrier | | À faire | À réinstaller |
+| Wegom | `Wegom/FAST EPIL` | — | | Ignoré | Administratif |
+| Wegom | `Wegom/Mailer Seb` | — | | Ignoré | |
+| Wegom | `Wegom/Sanier` | Sanier projet 1 | | Reporté | AF ; projet à retrouver, dossier actuel vide |
+| Wegom | `Wegom/Sanier` | Sanier projet 2 | | Reporté | AF ; projet à retrouver, dossier actuel vide |
+| Wegom | `Wegom/Sorbone` | — | Audiovisuel | Ignoré | Intervention audiovisuelle |
+| Wegom | `Wegom/Wegom 2018-05-31 12-50-53` | — | | Ignoré | Sauvegarde datée |
+| Wegom | absent de l'inventaire | WegAtt | VB6 | Reporté | Retrouver des captures d'écran pour l'archive |
+| Wegom | `Wegom/election` | Mairie de Chennevières | | À faire | À réinstaller |
+| Wegom | `Wegom/sql_monitor_wego` | — | | Ignoré | |
+| Wegom | `Wegom/wegom` | — | | Ignoré | Application interne |
+| Wegom | `Wegom/wegom app` | — | | Ignoré | Application interne |
+| conseil | `conseil/aamac.local_20250825_070017` | Conseil municipal | PHP | À faire | À réinstaller |
+| efficience | `efficience/cfes` | cfes | Netscape Server | Reporté | AF ; projet ancien à conserver |
+| eridia | `eridia` | eridia | HTML statique | À faire | À réinstaller ; `prod` et `rea` font partie du même projet, `cowprod.zip` est une archive |
+| ms | `ms/Cadref` | Cadref | PHP | À faire | À réinstaller |
+| ms | `ms/Duplicate Qr-Code` | Duplicate Qr-Code | Android | Reporté | |
+| ms | `ms/Melons` | Melons | | Ignoré | Rien d'utile dans ce dossier ; site déjà réinstallé |
+| ms | absent de l'inventaire | prod.bernardchiron.org | | À faire | À réinstaller |
+| ms | `ms/Samsung` | Samsung — application | Android | Reporté | |
+| ms | `ms/Samsung` | Samsung — back-office | PHP | À faire | À réinstaller |
+| ms | `ms/Wifimage` | Wifimage | Android | Reporté | |
+| ms | `ms/sanicard` | sanicard | Android | Reporté | |
+| phyto | `phyto` | — | | Ignoré | |
+| phyto | `www.phyto-terra.com` | — | | Ignoré | |
 
 ## Règles de triage
 
