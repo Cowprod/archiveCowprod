@@ -14,17 +14,17 @@ Objectif : archiver au moins un projet par jour dans archiveCowprod.
 
 | Groupe / client | Dossier source | Projet candidat | Technologies | Statut | Notes |
 |---|---|---|---|---|---|
-| A la folie | `A la folie/2019_bandOrganizer` | 2019_bandOrganizer | | À qualifier | |
+| A la folie | `A la folie/2019_bandOrganizer` | 2019_bandOrganizer | | Ignoré | BandOrganizer ; exclu de la file d'archivage |
 | A la folie | `A la folie/20230504_BO` | 20230504_BO | | À qualifier | |
 | A la folie | `A la folie/BO` | BO | | À qualifier | |
 | A la folie | `A la folie/BOBAKCUP` | BOBAKCUP | | À qualifier | |
 | A la folie | `A la folie/DEL_affiche.legroupealafolie.org` | affiche.legroupealafolie.org | | À qualifier | Préfixe DEL |
 | A la folie | `A la folie/DEL_demo.legroupealafolie.org` | demo.legroupealafolie.org | | À qualifier | Préfixe DEL |
 | A la folie | `A la folie/Telecaster` | Telecaster | | À qualifier | |
-| A la folie | `A la folie/bandorganizer` | bandorganizer | | À qualifier | |
-| A la folie | `A la folie/bandorganizer_bck` | bandorganizer_bck | | À qualifier | Probable sauvegarde |
-| A la folie | `A la folie/bandorganizer_client_old` | bandorganizer_client_old | | À qualifier | Probable ancienne version |
-| A la folie | `A la folie/bandorganizer_del` | bandorganizer_del | | À qualifier | Probable ancienne version |
+| A la folie | `A la folie/bandorganizer` | bandorganizer | | Ignoré | Version principale de BandOrganizer ; exclue de la file d'archivage |
+| A la folie | `A la folie/bandorganizer_bck` | bandorganizer_bck | | Ignoré | Backup de BandOrganizer |
+| A la folie | `A la folie/bandorganizer_client_old` | bandorganizer_client_old | | Ignoré | Ancienne version/client de BandOrganizer |
+| A la folie | `A la folie/bandorganizer_del` | bandorganizer_del | | Ignoré | Ancienne version de BandOrganizer |
 | A la folie | `A la folie/conductor` | conductor | | À qualifier | |
 | A la folie | `A la folie/tempBO` | tempBO | | À qualifier | Probable temporaire |
 | Arte Factory | `Arte Factory` | À découper | | À qualifier | Sous-dossiers visibles : Bezons Coeur de ville, Teaser Montparnasse |
