@@ -18,7 +18,7 @@ Objectif : archiver au moins un projet par jour dans archiveCowprod.
 | A la folie | `A la folie/20230504_BO` | BandOrganizer | | Ignoré | Sauvegarde/version |
 | A la folie | `A la folie/BO` | BandOrganizer | | Ignoré | Même projet |
 | A la folie | `A la folie/BOBAKCUP` | BandOrganizer | | Ignoré | Backup |
-| A la folie | `A la folie/DEL_affiche.legroupealafolie.org` | affiche.legroupealafolie.org | | À faire | Seul dossier DEL présent : à traiter comme projet |
+| A la folie | `A la folie/DEL_affiche.legroupealafolie.org` | affiche.legroupealafolie.org | | Archivé | En ligne sur https://affiche.legroupealafolie.org.archive.cowprod.net/ ; J2 réussi |
 | A la folie | `A la folie/DEL_demo.legroupealafolie.org` | demo.legroupealafolie.org | | À faire | Seul dossier DEL présent : à traiter comme projet |
 | A la folie | `A la folie/Telecaster` | Telecaster | | Ignoré | Pas un projet informatique |
 | A la folie | `A la folie/bandorganizer` | BandOrganizer | | Ignoré | Version principale ; ensemble BandOrganizer exclu |
