@@ -115,7 +115,7 @@ Objectif : archiver au moins un projet par jour dans archiveCowprod.
 | Wegom | `Wegom/sql_monitor_wego` | — | | Ignoré | |
 | Wegom | `Wegom/wegom` | — | | Ignoré | Application interne |
 | Wegom | `Wegom/wegom app` | — | | Ignoré | Application interne |
-| conseil | `conseil/aamac.local_20250825_070017` | Conseil municipal | PHP | À faire | À réinstaller |
+| conseil | `conseil/aamac.local_20250825_070017` | Conseil municipal | PHP | Archivé | Réinstallé et validé sur le serveur d'archive ; restauration aaPanel testée avec succès |
 | efficience | `efficience/cfes` | cfes | Netscape Server | Reporté | AF ; projet ancien à conserver |
 | eridia | `eridia` | eridia | HTML statique | Archivé | En ligne sur https://hachette.eridia.archive.cowprod.net/ ; J1 réussi. 4 liens internes restent à vérifier dans les sauvegardes source : ART02_LISEDC_F.html, COL02_GESCOL_F.html, INT03_MAJINT_F.html, INT03_MAJINT.html |
 | ms | `ms/Cadref` | Cadref | PHP | À faire | À réinstaller |
