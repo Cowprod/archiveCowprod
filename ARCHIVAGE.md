@@ -103,7 +103,7 @@ Objectif : archiver au moins un projet par jour dans archiveCowprod.
 | Wegom | `Wegom/Claye` | Téléthon | | À faire | À réinstaller |
 | Wegom | `Wegom/Clio` | Clio | | Reporté | AF |
 | Wegom | `Wegom/Dentsu` | Dentsu | Domotique | Reporté | Même famille que les projets Dentsu |
-| Wegom | `Wegom/Euler` | Calendrier | | À faire | À réinstaller |
+| Wegom | `Wegom/Euler` | Calendrier | | Archivé | En ligne sur https://euler.archive.cowprod.net/ ; projet du 4 octobre 2026 |
 | Wegom | `Wegom/FAST EPIL` | — | | Ignoré | Administratif |
 | Wegom | `Wegom/Mailer Seb` | — | | Ignoré | |
 | Wegom | `Wegom/Sanier` | Sanier projet 1 | | Reporté | AF ; projet à retrouver, dossier actuel vide |
